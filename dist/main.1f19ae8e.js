@@ -25748,7 +25748,242 @@ if ("development" === 'production') {
 } else {
   module.exports = require('./cjs/react-dom.development.js');
 }
-},{"./cjs/react-dom.development.js":"../node_modules/react-dom/cjs/react-dom.development.js"}],"../node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
+},{"./cjs/react-dom.development.js":"../node_modules/react-dom/cjs/react-dom.development.js"}],"constants/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.SIZE = exports.RESOLUTION = void 0;
+var RESOLUTION = 40;
+exports.RESOLUTION = RESOLUTION;
+var SIZE = 600;
+exports.SIZE = SIZE;
+},{}],"utils/divideGrid.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = divideGrid;
+
+var _constants = require("/constants");
+
+function divideGrid(size) {
+  return size / _constants.RESOLUTION;
+}
+},{"/constants":"constants/index.js"}],"../node_modules/uuid/lib/rng-browser.js":[function(require,module,exports) {
+// Unique ID creation requires a high quality random # generator.  In the
+// browser this is a little complicated due to unknown quality of Math.random()
+// and inconsistent support for the `crypto` API.  We do the best we can via
+// feature-detection
+
+// getRandomValues needs to be invoked in a context where "this" is a Crypto
+// implementation. Also, find the complete implementation of crypto on IE11.
+var getRandomValues = (typeof(crypto) != 'undefined' && crypto.getRandomValues && crypto.getRandomValues.bind(crypto)) ||
+                      (typeof(msCrypto) != 'undefined' && typeof window.msCrypto.getRandomValues == 'function' && msCrypto.getRandomValues.bind(msCrypto));
+
+if (getRandomValues) {
+  // WHATWG crypto RNG - http://wiki.whatwg.org/wiki/Crypto
+  var rnds8 = new Uint8Array(16); // eslint-disable-line no-undef
+
+  module.exports = function whatwgRNG() {
+    getRandomValues(rnds8);
+    return rnds8;
+  };
+} else {
+  // Math.random()-based (RNG)
+  //
+  // If all else fails, use Math.random().  It's fast, but is of unspecified
+  // quality.
+  var rnds = new Array(16);
+
+  module.exports = function mathRNG() {
+    for (var i = 0, r; i < 16; i++) {
+      if ((i & 0x03) === 0) r = Math.random() * 0x100000000;
+      rnds[i] = r >>> ((i & 0x03) << 3) & 0xff;
+    }
+
+    return rnds;
+  };
+}
+
+},{}],"../node_modules/uuid/lib/bytesToUuid.js":[function(require,module,exports) {
+/**
+ * Convert array of 16 byte values to UUID string format of the form:
+ * XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+ */
+var byteToHex = [];
+for (var i = 0; i < 256; ++i) {
+  byteToHex[i] = (i + 0x100).toString(16).substr(1);
+}
+
+function bytesToUuid(buf, offset) {
+  var i = offset || 0;
+  var bth = byteToHex;
+  // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
+  return ([bth[buf[i++]], bth[buf[i++]], 
+	bth[buf[i++]], bth[buf[i++]], '-',
+	bth[buf[i++]], bth[buf[i++]], '-',
+	bth[buf[i++]], bth[buf[i++]], '-',
+	bth[buf[i++]], bth[buf[i++]], '-',
+	bth[buf[i++]], bth[buf[i++]],
+	bth[buf[i++]], bth[buf[i++]],
+	bth[buf[i++]], bth[buf[i++]]]).join('');
+}
+
+module.exports = bytesToUuid;
+
+},{}],"../node_modules/uuid/v1.js":[function(require,module,exports) {
+var rng = require('./lib/rng');
+var bytesToUuid = require('./lib/bytesToUuid');
+
+// **`v1()` - Generate time-based UUID**
+//
+// Inspired by https://github.com/LiosK/UUID.js
+// and http://docs.python.org/library/uuid.html
+
+var _nodeId;
+var _clockseq;
+
+// Previous uuid creation time
+var _lastMSecs = 0;
+var _lastNSecs = 0;
+
+// See https://github.com/broofa/node-uuid for API details
+function v1(options, buf, offset) {
+  var i = buf && offset || 0;
+  var b = buf || [];
+
+  options = options || {};
+  var node = options.node || _nodeId;
+  var clockseq = options.clockseq !== undefined ? options.clockseq : _clockseq;
+
+  // node and clockseq need to be initialized to random values if they're not
+  // specified.  We do this lazily to minimize issues related to insufficient
+  // system entropy.  See #189
+  if (node == null || clockseq == null) {
+    var seedBytes = rng();
+    if (node == null) {
+      // Per 4.5, create and 48-bit node id, (47 random bits + multicast bit = 1)
+      node = _nodeId = [
+        seedBytes[0] | 0x01,
+        seedBytes[1], seedBytes[2], seedBytes[3], seedBytes[4], seedBytes[5]
+      ];
+    }
+    if (clockseq == null) {
+      // Per 4.2.2, randomize (14 bit) clockseq
+      clockseq = _clockseq = (seedBytes[6] << 8 | seedBytes[7]) & 0x3fff;
+    }
+  }
+
+  // UUID timestamps are 100 nano-second units since the Gregorian epoch,
+  // (1582-10-15 00:00).  JSNumbers aren't precise enough for this, so
+  // time is handled internally as 'msecs' (integer milliseconds) and 'nsecs'
+  // (100-nanoseconds offset from msecs) since unix epoch, 1970-01-01 00:00.
+  var msecs = options.msecs !== undefined ? options.msecs : new Date().getTime();
+
+  // Per 4.2.1.2, use count of uuid's generated during the current clock
+  // cycle to simulate higher resolution clock
+  var nsecs = options.nsecs !== undefined ? options.nsecs : _lastNSecs + 1;
+
+  // Time since last uuid creation (in msecs)
+  var dt = (msecs - _lastMSecs) + (nsecs - _lastNSecs)/10000;
+
+  // Per 4.2.1.2, Bump clockseq on clock regression
+  if (dt < 0 && options.clockseq === undefined) {
+    clockseq = clockseq + 1 & 0x3fff;
+  }
+
+  // Reset nsecs if clock regresses (new clockseq) or we've moved onto a new
+  // time interval
+  if ((dt < 0 || msecs > _lastMSecs) && options.nsecs === undefined) {
+    nsecs = 0;
+  }
+
+  // Per 4.2.1.2 Throw error if too many uuids are requested
+  if (nsecs >= 10000) {
+    throw new Error('uuid.v1(): Can\'t create more than 10M uuids/sec');
+  }
+
+  _lastMSecs = msecs;
+  _lastNSecs = nsecs;
+  _clockseq = clockseq;
+
+  // Per 4.1.4 - Convert from unix epoch to Gregorian epoch
+  msecs += 12219292800000;
+
+  // `time_low`
+  var tl = ((msecs & 0xfffffff) * 10000 + nsecs) % 0x100000000;
+  b[i++] = tl >>> 24 & 0xff;
+  b[i++] = tl >>> 16 & 0xff;
+  b[i++] = tl >>> 8 & 0xff;
+  b[i++] = tl & 0xff;
+
+  // `time_mid`
+  var tmh = (msecs / 0x100000000 * 10000) & 0xfffffff;
+  b[i++] = tmh >>> 8 & 0xff;
+  b[i++] = tmh & 0xff;
+
+  // `time_high_and_version`
+  b[i++] = tmh >>> 24 & 0xf | 0x10; // include version
+  b[i++] = tmh >>> 16 & 0xff;
+
+  // `clock_seq_hi_and_reserved` (Per 4.2.2 - include variant)
+  b[i++] = clockseq >>> 8 | 0x80;
+
+  // `clock_seq_low`
+  b[i++] = clockseq & 0xff;
+
+  // `node`
+  for (var n = 0; n < 6; ++n) {
+    b[i + n] = node[n];
+  }
+
+  return buf ? buf : bytesToUuid(b);
+}
+
+module.exports = v1;
+
+},{"./lib/rng":"../node_modules/uuid/lib/rng-browser.js","./lib/bytesToUuid":"../node_modules/uuid/lib/bytesToUuid.js"}],"utils/makeGrid.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = makeMatrix;
+
+function makeMatrix(m, n, initial) {
+  var a;
+  var matrix = [];
+
+  for (var i = 0; i < m; i += 1) {
+    a = [];
+
+    for (var j = 0; j < n; j += 1) {
+      a[j] = initial();
+    }
+
+    matrix[i] = a;
+  }
+
+  return matrix;
+}
+},{}],"utils/genRandom.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = genRandom;
+
+// make a random number between 1 and 2
+function genRandom() {
+  return Math.floor(Math.random() * 2);
+}
+
+;
+},{}],"../node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
 var bundleURL = null;
 
 function getBundleURLCached() {
@@ -25815,7 +26050,192 @@ function reloadCSS() {
 }
 
 module.exports = reloadCSS;
-},{"./bundle-url":"../node_modules/parcel-bundler/src/builtins/bundle-url.js"}],"assets/scss/styles.scss":[function(require,module,exports) {
+},{"./bundle-url":"../node_modules/parcel-bundler/src/builtins/bundle-url.js"}],"components/core/Table/Table.scss":[function(require,module,exports) {
+var reloadCSS = require('_css_loader');
+
+module.hot.dispose(reloadCSS);
+module.hot.accept(reloadCSS);
+},{"_css_loader":"../node_modules/parcel-bundler/src/builtins/css-loader.js"}],"components/core/Table/Table.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireDefault(require("react"));
+
+require("./Table.scss");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var Table = function Table(_ref) {
+  var children = _ref.children,
+      isFull = _ref.isFull;
+  return _react.default.createElement("div", {
+    className: "table ".concat(isFull ? 'table--full' : '')
+  }, _react.default.createElement("div", {
+    className: "table__tbody"
+  }, children));
+};
+
+var _default = Table;
+exports.default = _default;
+},{"react":"../node_modules/react/index.js","./Table.scss":"components/core/Table/Table.scss"}],"components/core/Table/Tr.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.Tr = void 0;
+
+var _react = _interopRequireDefault(require("react"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var Tr = function Tr(props) {
+  return _react.default.createElement("div", {
+    className: "table__tr"
+  }, props.children);
+};
+
+exports.Tr = Tr;
+var _default = Tr;
+exports.default = _default;
+},{"react":"../node_modules/react/index.js"}],"components/core/Table/Td.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireDefault(require("react"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var Td = function Td(_ref) {
+  var children = _ref.children,
+      style = _ref.style;
+  return _react.default.createElement("div", {
+    style: style,
+    className: "table__td"
+  }, children);
+};
+
+var _default = Td;
+exports.default = _default;
+},{"react":"../node_modules/react/index.js"}],"components/core/Table/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "Table", {
+  enumerable: true,
+  get: function () {
+    return _Table.default;
+  }
+});
+Object.defineProperty(exports, "Tr", {
+  enumerable: true,
+  get: function () {
+    return _Tr.default;
+  }
+});
+Object.defineProperty(exports, "Td", {
+  enumerable: true,
+  get: function () {
+    return _Td.default;
+  }
+});
+
+var _Table = _interopRequireDefault(require("./Table"));
+
+var _Tr = _interopRequireDefault(require("./Tr"));
+
+var _Td = _interopRequireDefault(require("./Td"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+},{"./Table":"components/core/Table/Table.js","./Tr":"components/core/Table/Tr.js","./Td":"components/core/Table/Td.js"}],"components/shared/Grid/Grid.scss":[function(require,module,exports) {
+var reloadCSS = require('_css_loader');
+
+module.hot.dispose(reloadCSS);
+module.hot.accept(reloadCSS);
+},{"_css_loader":"../node_modules/parcel-bundler/src/builtins/css-loader.js"}],"components/shared/Grid/Grid.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireDefault(require("react"));
+
+var _v = _interopRequireDefault(require("uuid/v1"));
+
+var _constants = require("/constants");
+
+var _makeGrid = _interopRequireDefault(require("/utils/makeGrid"));
+
+var _genRandom = _interopRequireDefault(require("/utils/genRandom"));
+
+var _Table = require("/components/core/Table");
+
+require("./Grid.scss");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// $FlowIgnore
+var on = '#2c3e50';
+var off = '#ffffff';
+
+function Grid(_ref) {
+  var rows = _ref.rows,
+      cols = _ref.cols;
+  var grid = (0, _makeGrid.default)(rows, cols, _genRandom.default);
+  return _react.default.createElement("div", {
+    style: {
+      height: "".concat(_constants.SIZE, "px"),
+      width: "".concat(_constants.SIZE, "px")
+    },
+    className: "grid"
+  }, _react.default.createElement(_Table.Table, {
+    isFull: true
+  }, grid.map(function (row) {
+    return _react.default.createElement(_Table.Tr, {
+      key: (0, _v.default)()
+    }, row.map(function (col) {
+      return _react.default.createElement(_Table.Td, {
+        key: (0, _v.default)(),
+        style: {
+          background: col ? on : off
+        }
+      });
+    }));
+  })));
+}
+
+;
+var _default = Grid;
+exports.default = _default;
+},{"react":"../node_modules/react/index.js","uuid/v1":"../node_modules/uuid/v1.js","/constants":"constants/index.js","/utils/makeGrid":"utils/makeGrid.js","/utils/genRandom":"utils/genRandom.js","/components/core/Table":"components/core/Table/index.js","./Grid.scss":"components/shared/Grid/Grid.scss"}],"components/shared/Grid/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "Grid", {
+  enumerable: true,
+  get: function () {
+    return _Grid.default;
+  }
+});
+
+var _Grid = _interopRequireDefault(require("./Grid"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+},{"./Grid":"components/shared/Grid/Grid.js"}],"assets/scss/styles.scss":[function(require,module,exports) {
 var reloadCSS = require('_css_loader');
 
 module.hot.dispose(reloadCSS);
@@ -25830,19 +26250,30 @@ exports.default = void 0;
 
 var _react = _interopRequireDefault(require("react"));
 
+var _divideGrid = _interopRequireDefault(require("/utils/divideGrid"));
+
+var _Grid = require("./components/shared/Grid");
+
+var _constants = require("/constants");
+
 require("./assets/scss/styles.scss");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+var gridValue = (0, _divideGrid.default)(_constants.SIZE);
+
 var App = function App() {
   return _react.default.createElement("section", null, _react.default.createElement("h1", {
     className: "text-center"
-  }, " Game of life "));
+  }, "Game of Life"), _react.default.createElement(_Grid.Grid, {
+    rows: gridValue,
+    cols: gridValue
+  }));
 };
 
 var _default = App;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","./assets/scss/styles.scss":"assets/scss/styles.scss"}],"main.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","/utils/divideGrid":"utils/divideGrid.js","./components/shared/Grid":"components/shared/Grid/index.js","/constants":"constants/index.js","./assets/scss/styles.scss":"assets/scss/styles.scss"}],"main.js":[function(require,module,exports) {
 "use strict";
 
 var React = _interopRequireWildcard(require("react"));
@@ -25888,7 +26319,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51222" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63818" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
