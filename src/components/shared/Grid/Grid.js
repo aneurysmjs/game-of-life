@@ -1,11 +1,12 @@
 // @flow strict
-import React from 'react';
+import React, { useContext } from 'react';
 // $FlowIgnore
 import uuidv1 from 'uuid/v1';
 
 import { SIZE } from '/constants';
 import makeGrid from '/utils/makeGrid';
-import genRandom from '/utils/genRandom';
+
+import AppContext from '/AppContext';
 
 import { Table, Tr, Td } from '/components/core/Table';
 
@@ -13,15 +14,13 @@ import './Grid.scss';
 
 const on = '#2c3e50';
 const off = '#ffffff';
-
 type PropsType = {
-  rows: number,
-  cols: number,
+  grid: Array<Array<number>>,
 };
 
-function Grid({ rows, cols }: PropsType) {
-  let grid = makeGrid(rows, cols, genRandom);
-
+function Grid({ rows, cols, grid }: PropsType) {
+  const { handle } = useContext(AppContext);
+  
   return (
     <div
       style={{
@@ -31,16 +30,20 @@ function Grid({ rows, cols }: PropsType) {
       className="grid"
     >
       <Table isFull>
-        {grid.map(row => (
+        {grid.map((row, i) => (
           <Tr key={uuidv1()}>
-            {row.map(col => (
-              <Td
-                key={uuidv1()}
-                style={{
-                  background: col ? on : off,
-                }}
-              />
-            ))}
+            {row.map((col, j) => {
+              const id = uuidv1();
+              return (
+                <Td
+                  key={id}
+                  style={{
+                    background: col ? on : off,
+                  }}
+                  onClick={() => handle({ id, i, j })}
+                />
+              );
+            })}
           </Tr>
         ))}
       </Table>

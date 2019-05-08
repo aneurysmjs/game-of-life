@@ -13,15 +13,23 @@
   .table__tbody {
     display: table-row-group; }
   .table__td {
+    cursor: pointer;
     display: table-cell;
     padding: .75rem;
     vertical-align: top;
     border: 1px solid #dee2e6; }
+    .table__td:hover {
+      background: #2c3e50; }
   .table__tr {
     display: table-row; }
 
 .grid {
   margin: 0 auto; }
+
+.toolbar {
+  display: flex;
+  justify-content: center;
+  margin: 1rem 0; }
 
 .btn {
   display: inline-block;

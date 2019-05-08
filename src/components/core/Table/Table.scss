@@ -23,10 +23,14 @@
   }
 
   @include element(td) {
+    cursor: pointer;
     display: table-cell;
     padding: .75rem;
     vertical-align: top;
     border: 1px solid #dee2e6;
+    &:hover {
+      background: #2c3e50;
+    }
   }
 
   @include element(tr) {

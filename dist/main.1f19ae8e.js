@@ -25772,7 +25772,46 @@ var _constants = require("/constants");
 function divideGrid(size) {
   return size / _constants.RESOLUTION;
 }
-},{"/constants":"constants/index.js"}],"../node_modules/uuid/lib/rng-browser.js":[function(require,module,exports) {
+},{"/constants":"constants/index.js"}],"utils/makeGrid.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = makeMatrix;
+
+function makeMatrix(m, n, initial) {
+  var a;
+  var matrix = [];
+
+  for (var i = 0; i < m; i += 1) {
+    a = [];
+
+    for (var j = 0; j < n; j += 1) {
+      a[j] = initial();
+    }
+
+    matrix[i] = a;
+  }
+
+  return matrix;
+}
+},{}],"utils/genRandom.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = genRandom;
+
+// make a random number between 1 and selected bound
+function genRandom() {
+  var bound = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 2;
+  return Math.floor(Math.random() * bound);
+}
+
+;
+},{}],"../node_modules/uuid/lib/rng-browser.js":[function(require,module,exports) {
 // Unique ID creation requires a high quality random # generator.  In the
 // browser this is a little complicated due to unknown quality of Math.random()
 // and inconsistent support for the `crypto` API.  We do the best we can via
@@ -25945,45 +25984,33 @@ function v1(options, buf, offset) {
 
 module.exports = v1;
 
-},{"./lib/rng":"../node_modules/uuid/lib/rng-browser.js","./lib/bytesToUuid":"../node_modules/uuid/lib/bytesToUuid.js"}],"utils/makeGrid.js":[function(require,module,exports) {
+},{"./lib/rng":"../node_modules/uuid/lib/rng-browser.js","./lib/bytesToUuid":"../node_modules/uuid/lib/bytesToUuid.js"}],"AppContext.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = makeMatrix;
+exports.default = void 0;
 
-function makeMatrix(m, n, initial) {
-  var a;
-  var matrix = [];
+var _react = _interopRequireWildcard(require("react"));
 
-  for (var i = 0; i < m; i += 1) {
-    a = [];
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
 
-    for (var j = 0; j < n; j += 1) {
-      a[j] = initial();
-    }
-
-    matrix[i] = a;
+var _default = (0, _react.createContext)({
+  handle: function handle(_ref) {
+    var id = _ref.id,
+        i = _ref.i,
+        j = _ref.j;
+    return {
+      id: id,
+      i: i,
+      j: j
+    };
   }
-
-  return matrix;
-}
-},{}],"utils/genRandom.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
 });
-exports.default = genRandom;
 
-// make a random number between 1 and 2
-function genRandom() {
-  return Math.floor(Math.random() * 2);
-}
-
-;
-},{}],"../node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
+exports.default = _default;
+},{"react":"../node_modules/react/index.js"}],"../node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
 var bundleURL = null;
 
 function getBundleURLCached() {
@@ -26116,10 +26143,12 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var Td = function Td(_ref) {
   var children = _ref.children,
-      style = _ref.style;
+      style = _ref.style,
+      onClick = _ref.onClick;
   return _react.default.createElement("div", {
-    style: style,
-    className: "table__td"
+    style: style || {},
+    className: "table__td",
+    onClick: onClick
   }, children);
 };
 
@@ -26170,7 +26199,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
-var _react = _interopRequireDefault(require("react"));
+var _react = _interopRequireWildcard(require("react"));
 
 var _v = _interopRequireDefault(require("uuid/v1"));
 
@@ -26178,7 +26207,7 @@ var _constants = require("/constants");
 
 var _makeGrid = _interopRequireDefault(require("/utils/makeGrid"));
 
-var _genRandom = _interopRequireDefault(require("/utils/genRandom"));
+var _AppContext = _interopRequireDefault(require("/AppContext"));
 
 var _Table = require("/components/core/Table");
 
@@ -26186,14 +26215,20 @@ require("./Grid.scss");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+
 // $FlowIgnore
 var on = '#2c3e50';
 var off = '#ffffff';
 
 function Grid(_ref) {
   var rows = _ref.rows,
-      cols = _ref.cols;
-  var grid = (0, _makeGrid.default)(rows, cols, _genRandom.default);
+      cols = _ref.cols,
+      grid = _ref.grid;
+
+  var _useContext = (0, _react.useContext)(_AppContext.default),
+      handle = _useContext.handle;
+
   return _react.default.createElement("div", {
     style: {
       height: "".concat(_constants.SIZE, "px"),
@@ -26202,14 +26237,22 @@ function Grid(_ref) {
     className: "grid"
   }, _react.default.createElement(_Table.Table, {
     isFull: true
-  }, grid.map(function (row) {
+  }, grid.map(function (row, i) {
     return _react.default.createElement(_Table.Tr, {
       key: (0, _v.default)()
-    }, row.map(function (col) {
+    }, row.map(function (col, j) {
+      var id = (0, _v.default)();
       return _react.default.createElement(_Table.Td, {
-        key: (0, _v.default)(),
+        key: id,
         style: {
           background: col ? on : off
+        },
+        onClick: function onClick() {
+          return handle({
+            id: id,
+            i: i,
+            j: j
+          });
         }
       });
     }));
@@ -26219,7 +26262,7 @@ function Grid(_ref) {
 ;
 var _default = Grid;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","uuid/v1":"../node_modules/uuid/v1.js","/constants":"constants/index.js","/utils/makeGrid":"utils/makeGrid.js","/utils/genRandom":"utils/genRandom.js","/components/core/Table":"components/core/Table/index.js","./Grid.scss":"components/shared/Grid/Grid.scss"}],"components/shared/Grid/index.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","uuid/v1":"../node_modules/uuid/v1.js","/constants":"constants/index.js","/utils/makeGrid":"utils/makeGrid.js","/AppContext":"AppContext.js","/components/core/Table":"components/core/Table/index.js","./Grid.scss":"components/shared/Grid/Grid.scss"}],"components/shared/Grid/index.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26235,7 +26278,69 @@ Object.defineProperty(exports, "Grid", {
 var _Grid = _interopRequireDefault(require("./Grid"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"./Grid":"components/shared/Grid/Grid.js"}],"assets/scss/styles.scss":[function(require,module,exports) {
+},{"./Grid":"components/shared/Grid/Grid.js"}],"components/shared/Toolbar/Toolbar.scss":[function(require,module,exports) {
+var reloadCSS = require('_css_loader');
+
+module.hot.dispose(reloadCSS);
+module.hot.accept(reloadCSS);
+},{"_css_loader":"../node_modules/parcel-bundler/src/builtins/css-loader.js"}],"components/shared/Toolbar/Toolbar.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireWildcard(require("react"));
+
+require("./Toolbar.scss");
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+
+var buttons = [{
+  id: '0',
+  text: 'Pause',
+  handle: function handle() {}
+}, {
+  id: '1',
+  text: 'Resume',
+  handle: function handle() {}
+}];
+
+function Toolbar() {
+  return _react.default.createElement("nav", {
+    className: "toolbar"
+  }, buttons.map(function (_ref) {
+    var text = _ref.text,
+        id = _ref.id,
+        handle = _ref.handle;
+    return _react.default.createElement("button", {
+      className: "btn btn-primary ml-3",
+      key: id,
+      onClick: handle
+    }, text);
+  }));
+}
+
+var _default = Toolbar;
+exports.default = _default;
+},{"react":"../node_modules/react/index.js","./Toolbar.scss":"components/shared/Toolbar/Toolbar.scss"}],"components/shared/Toolbar/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "Toolbar", {
+  enumerable: true,
+  get: function () {
+    return _Toolbar.default;
+  }
+});
+
+var _Toolbar = _interopRequireDefault(require("./Toolbar"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+},{"./Toolbar":"components/shared/Toolbar/Toolbar.js"}],"assets/scss/styles.scss":[function(require,module,exports) {
 var reloadCSS = require('_css_loader');
 
 module.hot.dispose(reloadCSS);
@@ -26248,32 +26353,123 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
-var _react = _interopRequireDefault(require("react"));
+var _react = _interopRequireWildcard(require("react"));
 
 var _divideGrid = _interopRequireDefault(require("/utils/divideGrid"));
 
-var _Grid = require("./components/shared/Grid");
+var _makeGrid = _interopRequireDefault(require("/utils/makeGrid"));
+
+var _genRandom = _interopRequireDefault(require("/utils/genRandom"));
 
 var _constants = require("/constants");
+
+var _Grid = require("/components/shared/Grid");
+
+var _Toolbar = require("/components/shared/Toolbar");
+
+var _AppContext = _interopRequireDefault(require("/AppContext"));
 
 require("./assets/scss/styles.scss");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var gridValue = (0, _divideGrid.default)(_constants.SIZE);
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
 
-var App = function App() {
-  return _react.default.createElement("section", null, _react.default.createElement("h1", {
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+var size = (0, _divideGrid.default)(_constants.SIZE);
+var rows = size;
+var cols = size;
+var initialGrid = (0, _makeGrid.default)(rows, cols, function () {
+  return 0;
+});
+
+function App() {
+  var _useState = (0, _react.useState)({
+    id: '',
+    i: 0,
+    j: 0
+  }),
+      _useState2 = _slicedToArray(_useState, 2),
+      selected = _useState2[0],
+      setSeleted = _useState2[1];
+
+  var _useState3 = (0, _react.useState)(initialGrid),
+      _useState4 = _slicedToArray(_useState3, 2),
+      grid = _useState4[0],
+      setGrid = _useState4[1];
+
+  var _useState5 = (0, _react.useState)(0),
+      _useState6 = _slicedToArray(_useState5, 2),
+      generation = _useState6[0],
+      setGeneration = _useState6[1]; // get the indexes of the selected 'cell'
+
+
+  var handle = function handle(current) {
+    var i = current.i,
+        j = current.j;
+
+    var clonedGrid = _toConsumableArray(grid.map(function (r) {
+      return _toConsumableArray(r);
+    })); // toggle cell's value
+
+
+    clonedGrid[i][j] = !clonedGrid[i][j]; // update grid
+
+    setGrid(clonedGrid);
+    setSeleted(current);
+    return current;
+  };
+
+  var spawn = function spawn() {
+    var clonedGrid = _toConsumableArray(grid.map(function (r) {
+      return _toConsumableArray(r);
+    }));
+
+    grid.forEach(function (row, i) {
+      row.forEach(function (col, j) {
+        if ((0, _genRandom.default)(4) === 1) {
+          clonedGrid[i][j] = 1;
+        }
+      });
+    }); // update grid
+
+    setGrid(clonedGrid);
+  };
+
+  (0, _react.useEffect)(function () {
+    spawn();
+  }, [selected]);
+  return _react.default.createElement("section", null, _react.default.createElement("div", null, _react.default.createElement(_AppContext.default.Provider, {
+    value: {
+      handle: handle
+    }
+  }, _react.default.createElement("h1", {
     className: "text-center"
-  }, "Game of Life"), _react.default.createElement(_Grid.Grid, {
-    rows: gridValue,
-    cols: gridValue
-  }));
-};
+  }, "Game of Life"), _react.default.createElement(_Toolbar.Toolbar, null), _react.default.createElement(_Grid.Grid, {
+    grid: grid
+  }), _react.default.createElement("footer", {
+    className: "text-center mt-3"
+  }, "Generation: ", generation))));
+}
 
 var _default = App;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","/utils/divideGrid":"utils/divideGrid.js","./components/shared/Grid":"components/shared/Grid/index.js","/constants":"constants/index.js","./assets/scss/styles.scss":"assets/scss/styles.scss"}],"main.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","/utils/divideGrid":"utils/divideGrid.js","/utils/makeGrid":"utils/makeGrid.js","/utils/genRandom":"utils/genRandom.js","/constants":"constants/index.js","/components/shared/Grid":"components/shared/Grid/index.js","/components/shared/Toolbar":"components/shared/Toolbar/index.js","/AppContext":"AppContext.js","./assets/scss/styles.scss":"assets/scss/styles.scss"}],"main.js":[function(require,module,exports) {
 "use strict";
 
 var React = _interopRequireWildcard(require("react"));
