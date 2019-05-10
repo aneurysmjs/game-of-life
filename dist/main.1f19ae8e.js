@@ -26614,7 +26614,7 @@ exports.default = void 0;
 
 var _react = _interopRequireWildcard(require("react"));
 
-var _divideGrid4 = _interopRequireDefault(require("/utils/divideGrid"));
+var _divideGrid5 = _interopRequireDefault(require("/utils/divideGrid"));
 
 var _makeGrid = _interopRequireDefault(require("/utils/makeGrid"));
 
@@ -26646,8 +26646,8 @@ function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = 
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
-var result = (0, _divideGrid4.default)(_constants.SIZE);
-var speed = 300;
+var result = (0, _divideGrid5.default)(_constants.SIZE);
+var speed = 200;
 var initialGrid = (0, _makeGrid.default)(result.rows, result.cols, function () {
   return 0;
 });
@@ -26694,7 +26694,7 @@ function App() {
   };
 
   var start = function start() {
-    var _divideGrid = (0, _divideGrid4.default)(size),
+    var _divideGrid = (0, _divideGrid5.default)(size),
         rows = _divideGrid.rows,
         cols = _divideGrid.cols; // get the previous updated grid, so we avoid the same grid
     // on every tick of the interval
@@ -26709,7 +26709,7 @@ function App() {
   var spawnGrid = function spawnGrid() {
     var spawnedGrid = (0, _spawn.default)(grid);
 
-    var _divideGrid2 = (0, _divideGrid4.default)(size),
+    var _divideGrid2 = (0, _divideGrid5.default)(size),
         rows = _divideGrid2.rows,
         cols = _divideGrid2.cols;
 
@@ -26728,7 +26728,15 @@ function App() {
   var stop = function stop() {
     clearInterval(intervalId);
     setGrid(initialGrid);
-    setSize(_constants.SIZE);
+
+    var _divideGrid3 = (0, _divideGrid5.default)(size),
+        rows = _divideGrid3.rows,
+        cols = _divideGrid3.cols;
+
+    setGrid((0, _makeGrid.default)(rows, cols, function () {
+      return 0;
+    })); // setSize(SIZE);
+
     setGeneration(0);
   };
 
@@ -26744,9 +26752,9 @@ function App() {
   };
 
   var handleSize = function handleSize(option) {
-    var _divideGrid3 = (0, _divideGrid4.default)(option.value),
-        rows = _divideGrid3.rows,
-        cols = _divideGrid3.cols;
+    var _divideGrid4 = (0, _divideGrid5.default)(option.value),
+        rows = _divideGrid4.rows,
+        cols = _divideGrid4.cols;
 
     setSize(option.value);
     setGrid((0, _makeGrid.default)(rows, cols, function () {
@@ -26763,12 +26771,14 @@ function App() {
   }, "Game of Life"), _react.default.createElement(_Toolbar.Toolbar, {
     onClick: handleClick,
     onSize: handleSize
-  }), _react.default.createElement(_Grid.Grid, {
+  }), _react.default.createElement("div", {
+    className: "text-center my-3"
+  }, _react.default.createElement("strong", null, "Generations:"), " ", generation), _react.default.createElement(_Grid.Grid, {
     grid: grid,
     size: size
-  }), _react.default.createElement("footer", {
-    className: "text-center mt-3"
-  }, "Generations: ", generation))));
+  }))), _react.default.createElement("div", {
+    className: "mb-5"
+  }));
 }
 
 var _default = App;
@@ -26819,7 +26829,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52049" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "62690" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

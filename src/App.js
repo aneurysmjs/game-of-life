@@ -17,7 +17,7 @@ import type { SelectedType } from '/AppContext';
 import './assets/scss/styles.scss';
 
 const result = divideGrid(SIZE);
-const speed = 300;
+const speed = 200;
 
 const initialGrid = makeGrid(result.rows, result.cols, () => 0);
 
@@ -76,7 +76,9 @@ function App() {
   const stop = (): void => {
     clearInterval(intervalId);
     setGrid(initialGrid);
-    setSize(SIZE);
+    const { rows, cols } = divideGrid(size);
+    setGrid(makeGrid(rows, cols, () => 0));
+    // setSize(SIZE);
     setGeneration(0);
   };
 
@@ -106,15 +108,16 @@ function App() {
             onClick={handleClick}
             onSize={handleSize}
           />
+          <div className="text-center my-3">
+            <strong>Generations:</strong> { generation }
+          </div>
           <Grid
             grid={grid}
             size={size}
           />
-          <footer className="text-center mt-3">
-            Generations: { generation }
-          </footer>
         </AppContext.Provider>
       </div>
+      <div className="mb-5" />
     </section>
   );
 }
