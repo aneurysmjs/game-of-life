@@ -26762,12 +26762,14 @@ function App() {
     }));
   };
 
-  return _react.default.createElement("section", null, _react.default.createElement("div", null, _react.default.createElement(_AppContext.default.Provider, {
+  return _react.default.createElement("section", null, _react.default.createElement("div", {
+    className: "mt-3"
+  }, _react.default.createElement(_AppContext.default.Provider, {
     value: {
       handle: handle
     }
   }, _react.default.createElement("h1", {
-    className: "text-center"
+    className: "text-center display-3"
   }, "Game of Life"), _react.default.createElement(_Toolbar.Toolbar, {
     onClick: handleClick,
     onSize: handleSize

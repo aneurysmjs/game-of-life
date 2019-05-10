@@ -101,9 +101,9 @@ function App() {
 
   return (
     <section>
-      <div>
+      <div className="mt-3">
         <AppContext.Provider value={{ handle }}>
-          <h1 className="text-center">Game of Life</h1>
+          <h1 className="text-center display-3">Game of Life</h1>
           <Toolbar
             onClick={handleClick}
             onSize={handleSize}
