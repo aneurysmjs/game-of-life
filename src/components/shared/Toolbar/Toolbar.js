@@ -1,39 +1,85 @@
 // @flow strict
 import React, { useState } from 'react';
 
-import './Toolbar.scss';
+import { Select } from '/components/shared/Select';
 
+import './Toolbar.scss';
 type ButtonType = {
   id: string,
   text: string,
-  handle: <T>(T) => void
+  type: string,
+};
+
+type PropsType = {
+  onClick: (string) => void,
+  onSize: ({id: string, text: string, value: *}) => void
 };
 
 const buttons: Array<ButtonType> = [
   {
     id: '0',
-    text: 'Pause',
-    handle() {}
+    text: 'Play',
+    type: 'play',
   },
   {
     id: '1',
-    text: 'Resume',
-    handle() {}
+    text: 'Pause',
+    type: 'pause',
+  },
+  {
+    id: '2',
+    text: 'Stop',
+    type: 'stop',
+  },
+  {
+    id: '3',
+    text: 'Spawn',
+    type: 'spawnGrid',
   }
 ];
 
-function Toolbar() {
+const options: Array<{id: string, text: string, value: *}> = [
+  {
+    id: '0',
+    text: '10x10',
+    value: 400,
+  },
+  {
+    id: '1',
+    text: '20x20',
+    value: 800,
+  },
+  {
+    id: '2',
+    text: '30x30',
+    value: 1200,
+  },
+];
+
+function Toolbar({ onClick, onSize }: PropsType) {
+
+  const handleSelect = (option) => {
+    onSize(option);
+  };
+
   return (
     <nav className="toolbar">
-      {buttons.map(({ text, id, handle}) => (
+      {buttons.map(({ text, id, type }) => (
         <button
-          className="btn btn-primary ml-3"
+          className="btn btn-primary mr-3"
           key={id}
-          onClick={handle}
+          onClick={() => onClick(type)}
         >
           {text}
         </button>
       ))}
+
+      <Select
+        buttonText="Dimension"
+        options={options}
+        onSelect={handleSelect}
+      />
+
     </nav>
   );
 }

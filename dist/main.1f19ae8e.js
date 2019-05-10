@@ -25757,7 +25757,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.SIZE = exports.RESOLUTION = void 0;
 var RESOLUTION = 40;
 exports.RESOLUTION = RESOLUTION;
-var SIZE = 600;
+var SIZE = 400;
 exports.SIZE = SIZE;
 },{}],"utils/divideGrid.js":[function(require,module,exports) {
 "use strict";
@@ -25770,7 +25770,11 @@ exports.default = divideGrid;
 var _constants = require("/constants");
 
 function divideGrid(size) {
-  return size / _constants.RESOLUTION;
+  var result = size / _constants.RESOLUTION;
+  return {
+    rows: result,
+    cols: result
+  };
 }
 },{"/constants":"constants/index.js"}],"utils/makeGrid.js":[function(require,module,exports) {
 "use strict";
@@ -25811,7 +25815,116 @@ function genRandom() {
 }
 
 ;
-},{}],"../node_modules/uuid/lib/rng-browser.js":[function(require,module,exports) {
+},{}],"utils/cloneGrid.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = cloneGrid;
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+function cloneGrid(grid) {
+  return _toConsumableArray(grid.map(function (r) {
+    return _toConsumableArray(r);
+  }));
+}
+},{}],"utils/nextGeneration.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = nextGeneration;
+
+var _cloneGrid = _interopRequireDefault(require("/utils/cloneGrid"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function nextGeneration(grid, ROWS, COLS) {
+  // copy grid
+  var nextGrid = (0, _cloneGrid.default)(grid); // nested-loop iteraction to find the 'cell'
+
+  for (var row = 0; row < grid.length; row += 1) {
+    for (var col = 0; col < grid[row].length; col += 1) {
+      // itereation's current 'cell'
+      var cell = grid[row][col]; // set neighbours for current cell
+
+      var neighbours = 0; // find the neighbours relative the current 'cell'.
+      // so we can threated as a 3x3 grid.
+
+      for (var i = -1; i < 2; i += 1) {
+        for (var j = -1; j < 2; j += 1) {
+          // skip since the current 'cell' since is itself.
+          if (i === 0 && j === 0) {
+            continue;
+          } // check if we're outside of the boundary of the grid
+
+
+          var xCell = row + i;
+          var yCell = col + j; // here we deal with the edges of the grid
+
+          if (xCell >= 0 && yCell >= 0 && xCell < ROWS && yCell < COLS) {
+            // if there's is a 0, not living neighbour, otherwise there's living neighbour
+            var currentNeighbour = grid[row + i][col + j];
+            neighbours += currentNeighbour;
+          }
+        }
+      } // rules
+      // Any live cell with fewer than two live neighbours dies, as if by underpopulation.
+
+
+      if (cell === 1 && neighbours < 2) {
+        // we don't do it on grid since is what we're lopping through,
+        // it should be on the next generation's grid
+        nextGrid[row][col] = 0; // Any live cell with more than three live neighbours dies, as if by overpopulation.
+      } else if (cell === 1 && neighbours > 3) {
+        nextGrid[row][col] = 0; // Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
+      } else if (cell === 0 && neighbours === 3) {
+        nextGrid[row][col] = 1;
+      } // else {
+      // there's not need for an 'else' case because:
+      // Any live cell with two or three live neighbours lives on to the next generation.
+      // }
+
+    }
+  }
+
+  return nextGrid;
+}
+},{"/utils/cloneGrid":"utils/cloneGrid.js"}],"utils/spawn.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = spawn;
+
+var _genRandom = _interopRequireDefault(require("/utils/genRandom"));
+
+var _cloneGrid = _interopRequireDefault(require("/utils/cloneGrid"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function spawn(grid) {
+  var clonedGrid = (0, _cloneGrid.default)(grid);
+  grid.forEach(function (row, i) {
+    row.forEach(function (col, j) {
+      if ((0, _genRandom.default)(4) === 1) {
+        clonedGrid[i][j] = 1;
+      }
+    });
+  });
+  return clonedGrid;
+}
+},{"/utils/genRandom":"utils/genRandom.js","/utils/cloneGrid":"utils/cloneGrid.js"}],"../node_modules/uuid/lib/rng-browser.js":[function(require,module,exports) {
 // Unique ID creation requires a high quality random # generator.  In the
 // browser this is a little complicated due to unknown quality of Math.random()
 // and inconsistent support for the `crypto` API.  We do the best we can via
@@ -26222,17 +26335,17 @@ var on = '#2c3e50';
 var off = '#ffffff';
 
 function Grid(_ref) {
-  var rows = _ref.rows,
-      cols = _ref.cols,
-      grid = _ref.grid;
+  var grid = _ref.grid,
+      size = _ref.size;
 
   var _useContext = (0, _react.useContext)(_AppContext.default),
       handle = _useContext.handle;
 
+  var gridSize = "".concat(size ? size : _constants.SIZE, "px");
   return _react.default.createElement("div", {
     style: {
-      height: "".concat(_constants.SIZE, "px"),
-      width: "".concat(_constants.SIZE, "px")
+      height: gridSize,
+      width: gridSize
     },
     className: "grid"
   }, _react.default.createElement(_Table.Table, {
@@ -26278,7 +26391,117 @@ Object.defineProperty(exports, "Grid", {
 var _Grid = _interopRequireDefault(require("./Grid"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"./Grid":"components/shared/Grid/Grid.js"}],"components/shared/Toolbar/Toolbar.scss":[function(require,module,exports) {
+},{"./Grid":"components/shared/Grid/Grid.js"}],"components/shared/Select/Select.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireWildcard(require("react"));
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+function Select(_ref) {
+  var options = _ref.options,
+      onSelect = _ref.onSelect,
+      buttonText = _ref.buttonText;
+
+  var _useState = (0, _react.useState)(false),
+      _useState2 = _slicedToArray(_useState, 2),
+      open = _useState2[0],
+      setOpen = _useState2[1];
+
+  var _useState3 = (0, _react.useState)(null),
+      _useState4 = _slicedToArray(_useState3, 2),
+      selected = _useState4[0],
+      setSelected = _useState4[1];
+
+  var handleClick = function handleClick(option) {
+    onSelect(option);
+    setSelected(option);
+    toggle();
+  };
+
+  var toggle = function toggle() {
+    setOpen(!open);
+  };
+
+  var handle = function handle(evt) {
+    var target = evt.target; // clicked element    
+
+    if (open && !isItem(target)) {
+      setOpen(false);
+    }
+  };
+
+  var isItem = function isItem(el) {
+    return el.classList.contains('dropdown-item');
+  };
+
+  (0, _react.useEffect)(function () {
+    // $FlowFixMe
+    document.addEventListener('click', handle);
+    return function () {
+      // $FlowFixMe
+      document.removeEventListener('click', handle);
+    };
+  });
+  return _react.default.createElement("div", {
+    className: "dropdown"
+  }, _react.default.createElement("button", {
+    className: "btn btn-secondary dropdown-toggle",
+    type: "button",
+    "aria-haspopup": "true",
+    "aria-expanded": "false",
+    onClick: function onClick() {
+      return toggle();
+    }
+  }, selected ? selected.text : buttonText), _react.default.createElement("div", {
+    className: "dropdown-menu ".concat(open ? 'show' : '')
+  }, options.map(function (option) {
+    return _react.default.createElement("button", {
+      type: "button",
+      className: "dropdown-item",
+      key: option.id,
+      onClick: function onClick() {
+        return handleClick(option);
+      }
+    }, option.text);
+  })));
+}
+
+Select.defaultProps = {
+  buttonText: 'Select'
+};
+var _default = Select;
+exports.default = _default;
+},{"react":"../node_modules/react/index.js"}],"components/shared/Select/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "Select", {
+  enumerable: true,
+  get: function () {
+    return _Select.default;
+  }
+});
+
+var _Select = _interopRequireDefault(require("./Select"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+},{"./Select":"components/shared/Select/Select.js"}],"components/shared/Toolbar/Toolbar.scss":[function(require,module,exports) {
 var reloadCSS = require('_css_loader');
 
 module.hot.dispose(reloadCSS);
@@ -26293,38 +26516,74 @@ exports.default = void 0;
 
 var _react = _interopRequireWildcard(require("react"));
 
+var _Select = require("/components/shared/Select");
+
 require("./Toolbar.scss");
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
 
 var buttons = [{
   id: '0',
-  text: 'Pause',
-  handle: function handle() {}
+  text: 'Play',
+  type: 'play'
 }, {
   id: '1',
-  text: 'Resume',
-  handle: function handle() {}
+  text: 'Pause',
+  type: 'pause'
+}, {
+  id: '2',
+  text: 'Stop',
+  type: 'stop'
+}, {
+  id: '3',
+  text: 'Spawn',
+  type: 'spawnGrid'
+}];
+var options = [{
+  id: '0',
+  text: '10x10',
+  value: 400
+}, {
+  id: '1',
+  text: '20x20',
+  value: 800
+}, {
+  id: '2',
+  text: '30x30',
+  value: 1200
 }];
 
-function Toolbar() {
+function Toolbar(_ref) {
+  var _onClick = _ref.onClick,
+      onSize = _ref.onSize;
+
+  var handleSelect = function handleSelect(option) {
+    onSize(option);
+  };
+
   return _react.default.createElement("nav", {
     className: "toolbar"
-  }, buttons.map(function (_ref) {
-    var text = _ref.text,
-        id = _ref.id,
-        handle = _ref.handle;
+  }, buttons.map(function (_ref2) {
+    var text = _ref2.text,
+        id = _ref2.id,
+        type = _ref2.type;
     return _react.default.createElement("button", {
-      className: "btn btn-primary ml-3",
+      className: "btn btn-primary mr-3",
       key: id,
-      onClick: handle
+      onClick: function onClick() {
+        return _onClick(type);
+      }
     }, text);
+  }), _react.default.createElement(_Select.Select, {
+    buttonText: "Dimension",
+    options: options,
+    onSelect: handleSelect
   }));
 }
 
 var _default = Toolbar;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","./Toolbar.scss":"components/shared/Toolbar/Toolbar.scss"}],"components/shared/Toolbar/index.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","/components/shared/Select":"components/shared/Select/index.js","./Toolbar.scss":"components/shared/Toolbar/Toolbar.scss"}],"components/shared/Toolbar/index.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26355,11 +26614,17 @@ exports.default = void 0;
 
 var _react = _interopRequireWildcard(require("react"));
 
-var _divideGrid = _interopRequireDefault(require("/utils/divideGrid"));
+var _divideGrid4 = _interopRequireDefault(require("/utils/divideGrid"));
 
 var _makeGrid = _interopRequireDefault(require("/utils/makeGrid"));
 
 var _genRandom = _interopRequireDefault(require("/utils/genRandom"));
+
+var _nextGeneration = _interopRequireDefault(require("/utils/nextGeneration"));
+
+var _cloneGrid = _interopRequireDefault(require("/utils/cloneGrid"));
+
+var _spawn = _interopRequireDefault(require("/utils/spawn"));
 
 var _constants = require("/constants");
 
@@ -26375,14 +26640,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
 
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
-
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
-
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
-
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
@@ -26391,12 +26648,12 @@ function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = 
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
-var size = (0, _divideGrid.default)(_constants.SIZE);
-var rows = size;
-var cols = size;
-var initialGrid = (0, _makeGrid.default)(rows, cols, function () {
+var result = (0, _divideGrid4.default)(_constants.SIZE);
+var speed = 300;
+var initialGrid = (0, _makeGrid.default)(result.rows, result.cols, function () {
   return 0;
 });
+var intervalId;
 
 function App() {
   var _useState = (0, _react.useState)({
@@ -26408,7 +26665,9 @@ function App() {
       selected = _useState2[0],
       setSeleted = _useState2[1];
 
-  var _useState3 = (0, _react.useState)(initialGrid),
+  var _useState3 = (0, _react.useState)(function () {
+    return initialGrid;
+  }),
       _useState4 = _slicedToArray(_useState3, 2),
       grid = _useState4[0],
       setGrid = _useState4[1];
@@ -26416,60 +26675,104 @@ function App() {
   var _useState5 = (0, _react.useState)(0),
       _useState6 = _slicedToArray(_useState5, 2),
       generation = _useState6[0],
-      setGeneration = _useState6[1]; // get the indexes of the selected 'cell'
+      setGeneration = _useState6[1];
+
+  var _useState7 = (0, _react.useState)(_constants.SIZE),
+      _useState8 = _slicedToArray(_useState7, 2),
+      size = _useState8[0],
+      setSize = _useState8[1]; // get the indexes of the selected 'cell'
 
 
   var handle = function handle(current) {
     var i = current.i,
         j = current.j;
+    var clonedGrid = (0, _cloneGrid.default)(grid); // toggle cell's value and coerce back to number using "+"
 
-    var clonedGrid = _toConsumableArray(grid.map(function (r) {
-      return _toConsumableArray(r);
-    })); // toggle cell's value
-
-
-    clonedGrid[i][j] = !clonedGrid[i][j]; // update grid
+    clonedGrid[i][j] = +!clonedGrid[i][j]; // update grid
 
     setGrid(clonedGrid);
     setSeleted(current);
     return current;
   };
 
-  var spawn = function spawn() {
-    var clonedGrid = _toConsumableArray(grid.map(function (r) {
-      return _toConsumableArray(r);
-    }));
+  var start = function start() {
+    var clonedGrid = (0, _cloneGrid.default)(grid);
 
-    grid.forEach(function (row, i) {
-      row.forEach(function (col, j) {
-        if ((0, _genRandom.default)(4) === 1) {
-          clonedGrid[i][j] = 1;
-        }
-      });
-    }); // update grid
+    var _divideGrid = (0, _divideGrid4.default)(size),
+        rows = _divideGrid.rows,
+        cols = _divideGrid.cols;
 
-    setGrid(clonedGrid);
+    setGrid((0, _nextGeneration.default)(clonedGrid, rows, cols));
+    setGeneration(generation += 1);
   };
 
-  (0, _react.useEffect)(function () {
-    spawn();
-  }, [selected]);
+  var spawnGrid = function spawnGrid() {
+    var spawnedGrid = (0, _spawn.default)(grid);
+
+    var _divideGrid2 = (0, _divideGrid4.default)(size),
+        rows = _divideGrid2.rows,
+        cols = _divideGrid2.cols;
+
+    setGrid((0, _nextGeneration.default)(spawnedGrid, rows, cols));
+  };
+
+  var play = function play() {
+    clearInterval(intervalId);
+    intervalId = setInterval(start, speed);
+  };
+
+  var pause = function pause() {
+    clearInterval(intervalId);
+  };
+
+  var stop = function stop() {
+    clearInterval(intervalId);
+    setGrid(initialGrid);
+    setGeneration(0);
+  };
+
+  var buttonsHandler = {
+    play: play,
+    pause: pause,
+    stop: stop,
+    spawnGrid: spawnGrid
+  };
+
+  var handleClick = function handleClick(type) {
+    buttonsHandler[type]();
+  };
+
+  var handleSize = function handleSize(option) {
+    var _divideGrid3 = (0, _divideGrid4.default)(option.value),
+        rows = _divideGrid3.rows,
+        cols = _divideGrid3.cols;
+
+    setSize(option.value);
+    setGrid((0, _makeGrid.default)(rows, cols, function () {
+      return 0;
+    }));
+  };
+
   return _react.default.createElement("section", null, _react.default.createElement("div", null, _react.default.createElement(_AppContext.default.Provider, {
     value: {
       handle: handle
     }
   }, _react.default.createElement("h1", {
     className: "text-center"
-  }, "Game of Life"), _react.default.createElement(_Toolbar.Toolbar, null), _react.default.createElement(_Grid.Grid, {
-    grid: grid
+  }, "Game of Life"), _react.default.createElement(_Toolbar.Toolbar, {
+    onClick: handleClick,
+    onSize: handleSize
+  }), _react.default.createElement(_Grid.Grid, {
+    grid: grid,
+    size: size
   }), _react.default.createElement("footer", {
     className: "text-center mt-3"
-  }, "Generation: ", generation))));
+  }, "Generations: ", generation))));
 }
 
 var _default = App;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","/utils/divideGrid":"utils/divideGrid.js","/utils/makeGrid":"utils/makeGrid.js","/utils/genRandom":"utils/genRandom.js","/constants":"constants/index.js","/components/shared/Grid":"components/shared/Grid/index.js","/components/shared/Toolbar":"components/shared/Toolbar/index.js","/AppContext":"AppContext.js","./assets/scss/styles.scss":"assets/scss/styles.scss"}],"main.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","/utils/divideGrid":"utils/divideGrid.js","/utils/makeGrid":"utils/makeGrid.js","/utils/genRandom":"utils/genRandom.js","/utils/nextGeneration":"utils/nextGeneration.js","/utils/cloneGrid":"utils/cloneGrid.js","/utils/spawn":"utils/spawn.js","/constants":"constants/index.js","/components/shared/Grid":"components/shared/Grid/index.js","/components/shared/Toolbar":"components/shared/Toolbar/index.js","/AppContext":"AppContext.js","./assets/scss/styles.scss":"assets/scss/styles.scss"}],"main.js":[function(require,module,exports) {
 "use strict";
 
 var React = _interopRequireWildcard(require("react"));
@@ -26515,7 +26818,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63818" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52049" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

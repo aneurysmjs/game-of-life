@@ -1,10 +1,9 @@
 // @flow strict
 import React, { createContext } from 'react';
 
-type SelectedTyped = { id: string, i: number, j: number };
-
+export type SelectedType = { id: string, i: number, j: number };
 type AppContextType = {
-  handle: (SelectedTyped) => SelectedTyped;
+  handle: (SelectedType) => SelectedType;
 };
 
 export default createContext<AppContextType>({

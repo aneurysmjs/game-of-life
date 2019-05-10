@@ -14,18 +14,21 @@ import './Grid.scss';
 
 const on = '#2c3e50';
 const off = '#ffffff';
+
+export type GridType = Array<Array<number>>;
 type PropsType = {
   grid: Array<Array<number>>,
+  size?: number,
 };
 
-function Grid({ rows, cols, grid }: PropsType) {
+function Grid({ grid, size }: PropsType) {
   const { handle } = useContext(AppContext);
-  
+  const gridSize = `${size ? size : SIZE}px`
   return (
     <div
       style={{
-        height: `${SIZE}px`,
-        width: `${SIZE}px`,
+        height: gridSize,
+        width: gridSize,
       }}
       className="grid"
     >
