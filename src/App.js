@@ -69,6 +69,7 @@ function App() {
   const stop = (): void => {
     clearInterval(intervalId);
     setGrid(initialGrid);
+    setSize(SIZE);
     setGeneration(0);
   };
 

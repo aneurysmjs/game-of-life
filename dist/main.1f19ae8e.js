@@ -26728,6 +26728,7 @@ function App() {
   var stop = function stop() {
     clearInterval(intervalId);
     setGrid(initialGrid);
+    setSize(_constants.SIZE);
     setGeneration(0);
   };
 
