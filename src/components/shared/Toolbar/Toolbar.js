@@ -38,7 +38,7 @@ const buttons: Array<ButtonType> = [
   }
 ];
 
-const options: Array<{id: string, text: string, value: *}> = [
+const options: Array<{id: string, text: string, value: number}> = [
   {
     id: '0',
     text: '10x10',

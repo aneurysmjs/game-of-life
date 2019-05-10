@@ -25800,21 +25800,6 @@ function makeMatrix(m, n, initial) {
 
   return matrix;
 }
-},{}],"utils/genRandom.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = genRandom;
-
-// make a random number between 1 and selected bound
-function genRandom() {
-  var bound = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 2;
-  return Math.floor(Math.random() * bound);
-}
-
-;
 },{}],"utils/cloneGrid.js":[function(require,module,exports) {
 "use strict";
 
@@ -25899,7 +25884,22 @@ function nextGeneration(grid, ROWS, COLS) {
 
   return nextGrid;
 }
-},{"/utils/cloneGrid":"utils/cloneGrid.js"}],"utils/spawn.js":[function(require,module,exports) {
+},{"/utils/cloneGrid":"utils/cloneGrid.js"}],"utils/genRandom.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = genRandom;
+
+// make a random number between 1 and selected bound
+function genRandom() {
+  var bound = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 2;
+  return Math.floor(Math.random() * bound);
+}
+
+;
+},{}],"utils/spawn.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26618,8 +26618,6 @@ var _divideGrid4 = _interopRequireDefault(require("/utils/divideGrid"));
 
 var _makeGrid = _interopRequireDefault(require("/utils/makeGrid"));
 
-var _genRandom = _interopRequireDefault(require("/utils/genRandom"));
-
 var _nextGeneration = _interopRequireDefault(require("/utils/nextGeneration"));
 
 var _cloneGrid = _interopRequireDefault(require("/utils/cloneGrid"));
@@ -26672,15 +26670,15 @@ function App() {
       grid = _useState4[0],
       setGrid = _useState4[1];
 
-  var _useState5 = (0, _react.useState)(0),
+  var _useState5 = (0, _react.useState)(_constants.SIZE),
       _useState6 = _slicedToArray(_useState5, 2),
-      generation = _useState6[0],
-      setGeneration = _useState6[1];
+      size = _useState6[0],
+      setSize = _useState6[1];
 
-  var _useState7 = (0, _react.useState)(_constants.SIZE),
+  var _useState7 = (0, _react.useState)(0),
       _useState8 = _slicedToArray(_useState7, 2),
-      size = _useState8[0],
-      setSize = _useState8[1]; // get the indexes of the selected 'cell'
+      generation = _useState8[0],
+      setGeneration = _useState8[1]; // get the indexes of the selected 'cell'
 
 
   var handle = function handle(current) {
@@ -26696,13 +26694,15 @@ function App() {
   };
 
   var start = function start() {
-    var clonedGrid = (0, _cloneGrid.default)(grid);
-
     var _divideGrid = (0, _divideGrid4.default)(size),
         rows = _divideGrid.rows,
-        cols = _divideGrid.cols;
+        cols = _divideGrid.cols; // get the previous updated grid, so we avoid the same grid
+    // on every tick of the interval
 
-    setGrid((0, _nextGeneration.default)(clonedGrid, rows, cols));
+
+    setGrid(function (prevGrid) {
+      return (0, _nextGeneration.default)(prevGrid, rows, cols);
+    });
     setGeneration(generation += 1);
   };
 
@@ -26773,7 +26773,7 @@ function App() {
 
 var _default = App;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","/utils/divideGrid":"utils/divideGrid.js","/utils/makeGrid":"utils/makeGrid.js","/utils/genRandom":"utils/genRandom.js","/utils/nextGeneration":"utils/nextGeneration.js","/utils/cloneGrid":"utils/cloneGrid.js","/utils/spawn":"utils/spawn.js","/constants":"constants/index.js","/components/shared/Grid":"components/shared/Grid/index.js","/components/shared/Toolbar":"components/shared/Toolbar/index.js","/AppContext":"AppContext.js","./assets/scss/styles.scss":"assets/scss/styles.scss"}],"main.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","/utils/divideGrid":"utils/divideGrid.js","/utils/makeGrid":"utils/makeGrid.js","/utils/nextGeneration":"utils/nextGeneration.js","/utils/cloneGrid":"utils/cloneGrid.js","/utils/spawn":"utils/spawn.js","/constants":"constants/index.js","/components/shared/Grid":"components/shared/Grid/index.js","/components/shared/Toolbar":"components/shared/Toolbar/index.js","/AppContext":"AppContext.js","./assets/scss/styles.scss":"assets/scss/styles.scss"}],"main.js":[function(require,module,exports) {
 "use strict";
 
 var React = _interopRequireWildcard(require("react"));

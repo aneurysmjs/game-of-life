@@ -1,12 +1,10 @@
 // @flow strict
 import React, { useState, useEffect } from 'react';
-
 type SelectedType = {
   id: string,
   text: string,
   value: *
 };
-
 type PropsType = {
   options: Array<SelectedType>,
   onSelect: (SelectedType) => void,
@@ -34,7 +32,7 @@ function Select({ options, onSelect, buttonText }: PropsType) {
     }
   };
 
-  const isItem = (el: EventTarget) => el.classList.contains('dropdown-item');
+  const isItem = (el: EventTarget): boolean => el.classList.contains('dropdown-item');
 
   useEffect(() => {
     // $FlowFixMe

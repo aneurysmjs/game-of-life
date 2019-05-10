@@ -1,9 +1,8 @@
 // @flow strict
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 import divideGrid from '/utils/divideGrid';
 import makeGrid from '/utils/makeGrid';
-import genRandom from '/utils/genRandom';
 import nextGeneration from '/utils/nextGeneration';
 import cloneGrid from '/utils/cloneGrid';
 import spawn from '/utils/spawn';
@@ -24,11 +23,18 @@ const initialGrid = makeGrid(result.rows, result.cols, () => 0);
 
 let intervalId;
 
+type ButtonsHandlerType = {
+  play: () => void,
+  pause: () => void,
+  stop: () => void,
+  spawnGrid: () => void,
+};
+
 function App() {
   const [selected, setSeleted] = useState({id: '', i: 0, j: 0});
-  const [grid, setGrid] = useState(() => initialGrid);
+  const [grid, setGrid] = useState(() => initialGrid);  
+  const [size, setSize] = useState(SIZE);
   let [generation, setGeneration] = useState(0);
-  let [size, setSize] = useState(SIZE);
 
   // get the indexes of the selected 'cell'
   const handle = (current: SelectedType): SelectedType => {
@@ -45,19 +51,20 @@ function App() {
   };
 
   const start = (): void => {
-    const clonedGrid = cloneGrid(grid);
     const { rows, cols } = divideGrid(size);
-    setGrid(nextGeneration(clonedGrid, rows, cols));
+    // get the previous updated grid, so we avoid the same grid
+    // on every tick of the interval
+    setGrid(prevGrid => nextGeneration(prevGrid, rows, cols));
     setGeneration(generation += 1);
   };
 
-  const spawnGrid = () => {
+  const spawnGrid = (): void => {
     const spawnedGrid = spawn(grid);
     const { rows, cols } = divideGrid(size);
     setGrid(nextGeneration(spawnedGrid, rows, cols));
   };
 
-  const play = () => {
+  const play = (): void => {
     clearInterval(intervalId);
     intervalId = setInterval(start, speed);
   };
@@ -73,7 +80,7 @@ function App() {
     setGeneration(0);
   };
 
-  const buttonsHandler = {
+  const buttonsHandler: ButtonsHandlerType = {
     play,
     pause,
     stop,
@@ -84,7 +91,7 @@ function App() {
     buttonsHandler[type]();
   };
 
-  const handleSize = (option) => {
+  const handleSize = (option): void => {
     const { rows, cols } = divideGrid(option.value);    
     setSize(option.value);
     setGrid(makeGrid(rows, cols, () => 0));
