@@ -27492,7 +27492,9 @@ function Select(_ref) {
   };
 
   var isItem = function isItem(el) {
-    return el.classList.contains('dropdown-item');
+    if (el instanceof HTMLButtonElement) {
+      el.classList.contains('dropdown-item');
+    }
   };
 
   (0, _react.useEffect)(function () {

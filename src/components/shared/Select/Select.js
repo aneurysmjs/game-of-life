@@ -25,14 +25,18 @@ function Select({ options, onSelect, buttonText }: PropsType) {
     setOpen(!open);
   };
 
-  const handle = (evt: SyntheticEvent<HTMLButtonElement | *>): void => {
+  const handle = (evt: SyntheticEvent<>): void => {
     let { target } = evt; // clicked element    
     if (open && !isItem(target)) {
       setOpen(false);
     }
   };
 
-  const isItem = (el: EventTarget): boolean => el.classList.contains('dropdown-item');
+  const isItem = (el: EventTarget): boolean | void => {
+    if (el instanceof HTMLButtonElement) {
+      el.classList.contains('dropdown-item')
+    }
+  };
 
   useEffect(() => {
     // $FlowFixMe
