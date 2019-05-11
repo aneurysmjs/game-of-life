@@ -31,17 +31,17 @@ type ButtonsHandlerType = {
 };
 
 function App() {
-  const [selected, setSeleted] = useState({id: '', i: 0, j: 0});
+  const [selected, setSeleted] = useState({col: 0, row: 0});
   const [grid, setGrid] = useState(() => initialGrid);  
   const [size, setSize] = useState(SIZE);
   let [generation, setGeneration] = useState(0);
 
   // get the indexes of the selected 'cell'
   const handle = (current: SelectedType): SelectedType => {
-    const { i, j } = current;
+    const { col, row } = current;
     const clonedGrid = cloneGrid(grid);
     // toggle cell's value and coerce back to number using "+"
-    clonedGrid[i][j] = (+!clonedGrid[i][j]);
+    clonedGrid[col][row] = (+!clonedGrid[col][row]);
     // update grid
     setGrid(clonedGrid);
 

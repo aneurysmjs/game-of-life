@@ -6,14 +6,21 @@ type PropsType = {
   style?: {
     [string]: string | number
   },
-  onClick: () => *
+  col: number,
+  row: number,
 };
 
-const Td = ({ children, style, onClick }: PropsType) => (
+const Td = ({
+  children,
+  style,
+  col,
+  row,
+}: PropsType) => (
   <div
     style={style || {}}
     className="table__td"
-    onClick={onClick}
+    data-col={col}
+    data-row={row}
   >
     { children }
   </div>

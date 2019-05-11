@@ -25924,7 +25924,1041 @@ function spawn(grid) {
   });
   return clonedGrid;
 }
-},{"/utils/genRandom":"utils/genRandom.js","/utils/cloneGrid":"utils/cloneGrid.js"}],"../node_modules/uuid/lib/rng-browser.js":[function(require,module,exports) {
+},{"/utils/genRandom":"utils/genRandom.js","/utils/cloneGrid":"utils/cloneGrid.js"}],"../node_modules/ramda/src/internal/_isPlaceholder.js":[function(require,module,exports) {
+function _isPlaceholder(a) {
+       return a != null && typeof a === 'object' && a['@@functional/placeholder'] === true;
+}
+module.exports = _isPlaceholder;
+},{}],"../node_modules/ramda/src/internal/_curry1.js":[function(require,module,exports) {
+var _isPlaceholder = /*#__PURE__*/require('./_isPlaceholder');
+
+/**
+ * Optimized internal one-arity curry function.
+ *
+ * @private
+ * @category Function
+ * @param {Function} fn The function to curry.
+ * @return {Function} The curried function.
+ */
+
+
+function _curry1(fn) {
+  return function f1(a) {
+    if (arguments.length === 0 || _isPlaceholder(a)) {
+      return f1;
+    } else {
+      return fn.apply(this, arguments);
+    }
+  };
+}
+module.exports = _curry1;
+},{"./_isPlaceholder":"../node_modules/ramda/src/internal/_isPlaceholder.js"}],"../node_modules/ramda/src/internal/_curry2.js":[function(require,module,exports) {
+var _curry1 = /*#__PURE__*/require('./_curry1');
+
+var _isPlaceholder = /*#__PURE__*/require('./_isPlaceholder');
+
+/**
+ * Optimized internal two-arity curry function.
+ *
+ * @private
+ * @category Function
+ * @param {Function} fn The function to curry.
+ * @return {Function} The curried function.
+ */
+
+
+function _curry2(fn) {
+  return function f2(a, b) {
+    switch (arguments.length) {
+      case 0:
+        return f2;
+      case 1:
+        return _isPlaceholder(a) ? f2 : _curry1(function (_b) {
+          return fn(a, _b);
+        });
+      default:
+        return _isPlaceholder(a) && _isPlaceholder(b) ? f2 : _isPlaceholder(a) ? _curry1(function (_a) {
+          return fn(_a, b);
+        }) : _isPlaceholder(b) ? _curry1(function (_b) {
+          return fn(a, _b);
+        }) : fn(a, b);
+    }
+  };
+}
+module.exports = _curry2;
+},{"./_curry1":"../node_modules/ramda/src/internal/_curry1.js","./_isPlaceholder":"../node_modules/ramda/src/internal/_isPlaceholder.js"}],"../node_modules/ramda/src/internal/_has.js":[function(require,module,exports) {
+function _has(prop, obj) {
+  return Object.prototype.hasOwnProperty.call(obj, prop);
+}
+module.exports = _has;
+},{}],"../node_modules/ramda/src/hasPath.js":[function(require,module,exports) {
+var _curry2 = /*#__PURE__*/require('./internal/_curry2');
+
+var _has = /*#__PURE__*/require('./internal/_has');
+
+/**
+ * Returns whether or not a path exists in an object. Only the object's
+ * own properties are checked.
+ *
+ * @func
+ * @memberOf R
+ * @since v0.26.0
+ * @category Object
+ * @typedefn Idx = String | Int
+ * @sig [Idx] -> {a} -> Boolean
+ * @param {Array} path The path to use.
+ * @param {Object} obj The object to check the path in.
+ * @return {Boolean} Whether the path exists.
+ * @see R.has
+ * @example
+ *
+ *      R.hasPath(['a', 'b'], {a: {b: 2}});         // => true
+ *      R.hasPath(['a', 'b'], {a: {b: undefined}}); // => true
+ *      R.hasPath(['a', 'b'], {a: {c: 2}});         // => false
+ *      R.hasPath(['a', 'b'], {});                  // => false
+ */
+
+
+var hasPath = /*#__PURE__*/_curry2(function hasPath(_path, obj) {
+  if (_path.length === 0) {
+    return false;
+  }
+  var val = obj;
+  var idx = 0;
+  while (idx < _path.length) {
+    if (_has(_path[idx], val)) {
+      val = val[_path[idx]];
+      idx += 1;
+    } else {
+      return false;
+    }
+  }
+  return true;
+});
+module.exports = hasPath;
+},{"./internal/_curry2":"../node_modules/ramda/src/internal/_curry2.js","./internal/_has":"../node_modules/ramda/src/internal/_has.js"}],"../node_modules/ramda/src/has.js":[function(require,module,exports) {
+var _curry2 = /*#__PURE__*/require('./internal/_curry2');
+
+var hasPath = /*#__PURE__*/require('./hasPath');
+
+/**
+ * Returns whether or not an object has an own property with the specified name
+ *
+ * @func
+ * @memberOf R
+ * @since v0.7.0
+ * @category Object
+ * @sig s -> {s: x} -> Boolean
+ * @param {String} prop The name of the property to check for.
+ * @param {Object} obj The object to query.
+ * @return {Boolean} Whether the property exists.
+ * @example
+ *
+ *      const hasName = R.has('name');
+ *      hasName({name: 'alice'});   //=> true
+ *      hasName({name: 'bob'});     //=> true
+ *      hasName({});                //=> false
+ *
+ *      const point = {x: 0, y: 0};
+ *      const pointHas = R.has(R.__, point);
+ *      pointHas('x');  //=> true
+ *      pointHas('y');  //=> true
+ *      pointHas('z');  //=> false
+ */
+
+
+var has = /*#__PURE__*/_curry2(function has(prop, obj) {
+  return hasPath([prop], obj);
+});
+module.exports = has;
+},{"./internal/_curry2":"../node_modules/ramda/src/internal/_curry2.js","./hasPath":"../node_modules/ramda/src/hasPath.js"}],"../node_modules/ramda/src/internal/_arity.js":[function(require,module,exports) {
+function _arity(n, fn) {
+  /* eslint-disable no-unused-vars */
+  switch (n) {
+    case 0:
+      return function () {
+        return fn.apply(this, arguments);
+      };
+    case 1:
+      return function (a0) {
+        return fn.apply(this, arguments);
+      };
+    case 2:
+      return function (a0, a1) {
+        return fn.apply(this, arguments);
+      };
+    case 3:
+      return function (a0, a1, a2) {
+        return fn.apply(this, arguments);
+      };
+    case 4:
+      return function (a0, a1, a2, a3) {
+        return fn.apply(this, arguments);
+      };
+    case 5:
+      return function (a0, a1, a2, a3, a4) {
+        return fn.apply(this, arguments);
+      };
+    case 6:
+      return function (a0, a1, a2, a3, a4, a5) {
+        return fn.apply(this, arguments);
+      };
+    case 7:
+      return function (a0, a1, a2, a3, a4, a5, a6) {
+        return fn.apply(this, arguments);
+      };
+    case 8:
+      return function (a0, a1, a2, a3, a4, a5, a6, a7) {
+        return fn.apply(this, arguments);
+      };
+    case 9:
+      return function (a0, a1, a2, a3, a4, a5, a6, a7, a8) {
+        return fn.apply(this, arguments);
+      };
+    case 10:
+      return function (a0, a1, a2, a3, a4, a5, a6, a7, a8, a9) {
+        return fn.apply(this, arguments);
+      };
+    default:
+      throw new Error('First argument to _arity must be a non-negative integer no greater than ten');
+  }
+}
+module.exports = _arity;
+},{}],"../node_modules/ramda/src/internal/_curryN.js":[function(require,module,exports) {
+var _arity = /*#__PURE__*/require('./_arity');
+
+var _isPlaceholder = /*#__PURE__*/require('./_isPlaceholder');
+
+/**
+ * Internal curryN function.
+ *
+ * @private
+ * @category Function
+ * @param {Number} length The arity of the curried function.
+ * @param {Array} received An array of arguments received thus far.
+ * @param {Function} fn The function to curry.
+ * @return {Function} The curried function.
+ */
+
+
+function _curryN(length, received, fn) {
+  return function () {
+    var combined = [];
+    var argsIdx = 0;
+    var left = length;
+    var combinedIdx = 0;
+    while (combinedIdx < received.length || argsIdx < arguments.length) {
+      var result;
+      if (combinedIdx < received.length && (!_isPlaceholder(received[combinedIdx]) || argsIdx >= arguments.length)) {
+        result = received[combinedIdx];
+      } else {
+        result = arguments[argsIdx];
+        argsIdx += 1;
+      }
+      combined[combinedIdx] = result;
+      if (!_isPlaceholder(result)) {
+        left -= 1;
+      }
+      combinedIdx += 1;
+    }
+    return left <= 0 ? fn.apply(this, combined) : _arity(left, _curryN(length, combined, fn));
+  };
+}
+module.exports = _curryN;
+},{"./_arity":"../node_modules/ramda/src/internal/_arity.js","./_isPlaceholder":"../node_modules/ramda/src/internal/_isPlaceholder.js"}],"../node_modules/ramda/src/curryN.js":[function(require,module,exports) {
+var _arity = /*#__PURE__*/require('./internal/_arity');
+
+var _curry1 = /*#__PURE__*/require('./internal/_curry1');
+
+var _curry2 = /*#__PURE__*/require('./internal/_curry2');
+
+var _curryN = /*#__PURE__*/require('./internal/_curryN');
+
+/**
+ * Returns a curried equivalent of the provided function, with the specified
+ * arity. The curried function has two unusual capabilities. First, its
+ * arguments needn't be provided one at a time. If `g` is `R.curryN(3, f)`, the
+ * following are equivalent:
+ *
+ *   - `g(1)(2)(3)`
+ *   - `g(1)(2, 3)`
+ *   - `g(1, 2)(3)`
+ *   - `g(1, 2, 3)`
+ *
+ * Secondly, the special placeholder value [`R.__`](#__) may be used to specify
+ * "gaps", allowing partial application of any combination of arguments,
+ * regardless of their positions. If `g` is as above and `_` is [`R.__`](#__),
+ * the following are equivalent:
+ *
+ *   - `g(1, 2, 3)`
+ *   - `g(_, 2, 3)(1)`
+ *   - `g(_, _, 3)(1)(2)`
+ *   - `g(_, _, 3)(1, 2)`
+ *   - `g(_, 2)(1)(3)`
+ *   - `g(_, 2)(1, 3)`
+ *   - `g(_, 2)(_, 3)(1)`
+ *
+ * @func
+ * @memberOf R
+ * @since v0.5.0
+ * @category Function
+ * @sig Number -> (* -> a) -> (* -> a)
+ * @param {Number} length The arity for the returned function.
+ * @param {Function} fn The function to curry.
+ * @return {Function} A new, curried function.
+ * @see R.curry
+ * @example
+ *
+ *      const sumArgs = (...args) => R.sum(args);
+ *
+ *      const curriedAddFourNumbers = R.curryN(4, sumArgs);
+ *      const f = curriedAddFourNumbers(1, 2);
+ *      const g = f(3);
+ *      g(4); //=> 10
+ */
+
+
+var curryN = /*#__PURE__*/_curry2(function curryN(length, fn) {
+  if (length === 1) {
+    return _curry1(fn);
+  }
+  return _arity(length, _curryN(length, [], fn));
+});
+module.exports = curryN;
+},{"./internal/_arity":"../node_modules/ramda/src/internal/_arity.js","./internal/_curry1":"../node_modules/ramda/src/internal/_curry1.js","./internal/_curry2":"../node_modules/ramda/src/internal/_curry2.js","./internal/_curryN":"../node_modules/ramda/src/internal/_curryN.js"}],"../node_modules/ramda/src/max.js":[function(require,module,exports) {
+var _curry2 = /*#__PURE__*/require('./internal/_curry2');
+
+/**
+ * Returns the larger of its two arguments.
+ *
+ * @func
+ * @memberOf R
+ * @since v0.1.0
+ * @category Relation
+ * @sig Ord a => a -> a -> a
+ * @param {*} a
+ * @param {*} b
+ * @return {*}
+ * @see R.maxBy, R.min
+ * @example
+ *
+ *      R.max(789, 123); //=> 789
+ *      R.max('a', 'b'); //=> 'b'
+ */
+
+
+var max = /*#__PURE__*/_curry2(function max(a, b) {
+  return b > a ? b : a;
+});
+module.exports = max;
+},{"./internal/_curry2":"../node_modules/ramda/src/internal/_curry2.js"}],"../node_modules/ramda/src/internal/_isArray.js":[function(require,module,exports) {
+/**
+ * Tests whether or not an object is an array.
+ *
+ * @private
+ * @param {*} val The object to test.
+ * @return {Boolean} `true` if `val` is an array, `false` otherwise.
+ * @example
+ *
+ *      _isArray([]); //=> true
+ *      _isArray(null); //=> false
+ *      _isArray({}); //=> false
+ */
+module.exports = Array.isArray || function _isArray(val) {
+  return val != null && val.length >= 0 && Object.prototype.toString.call(val) === '[object Array]';
+};
+},{}],"../node_modules/ramda/src/internal/_isTransformer.js":[function(require,module,exports) {
+function _isTransformer(obj) {
+  return obj != null && typeof obj['@@transducer/step'] === 'function';
+}
+module.exports = _isTransformer;
+},{}],"../node_modules/ramda/src/internal/_dispatchable.js":[function(require,module,exports) {
+var _isArray = /*#__PURE__*/require('./_isArray');
+
+var _isTransformer = /*#__PURE__*/require('./_isTransformer');
+
+/**
+ * Returns a function that dispatches with different strategies based on the
+ * object in list position (last argument). If it is an array, executes [fn].
+ * Otherwise, if it has a function with one of the given method names, it will
+ * execute that function (functor case). Otherwise, if it is a transformer,
+ * uses transducer [xf] to return a new transformer (transducer case).
+ * Otherwise, it will default to executing [fn].
+ *
+ * @private
+ * @param {Array} methodNames properties to check for a custom implementation
+ * @param {Function} xf transducer to initialize if object is transformer
+ * @param {Function} fn default ramda implementation
+ * @return {Function} A function that dispatches on object in list position
+ */
+
+
+function _dispatchable(methodNames, xf, fn) {
+  return function () {
+    if (arguments.length === 0) {
+      return fn();
+    }
+    var args = Array.prototype.slice.call(arguments, 0);
+    var obj = args.pop();
+    if (!_isArray(obj)) {
+      var idx = 0;
+      while (idx < methodNames.length) {
+        if (typeof obj[methodNames[idx]] === 'function') {
+          return obj[methodNames[idx]].apply(obj, args);
+        }
+        idx += 1;
+      }
+      if (_isTransformer(obj)) {
+        var transducer = xf.apply(null, args);
+        return transducer(obj);
+      }
+    }
+    return fn.apply(this, arguments);
+  };
+}
+module.exports = _dispatchable;
+},{"./_isArray":"../node_modules/ramda/src/internal/_isArray.js","./_isTransformer":"../node_modules/ramda/src/internal/_isTransformer.js"}],"../node_modules/ramda/src/internal/_map.js":[function(require,module,exports) {
+function _map(fn, functor) {
+  var idx = 0;
+  var len = functor.length;
+  var result = Array(len);
+  while (idx < len) {
+    result[idx] = fn(functor[idx]);
+    idx += 1;
+  }
+  return result;
+}
+module.exports = _map;
+},{}],"../node_modules/ramda/src/internal/_isString.js":[function(require,module,exports) {
+function _isString(x) {
+  return Object.prototype.toString.call(x) === '[object String]';
+}
+module.exports = _isString;
+},{}],"../node_modules/ramda/src/internal/_isArrayLike.js":[function(require,module,exports) {
+var _curry1 = /*#__PURE__*/require('./_curry1');
+
+var _isArray = /*#__PURE__*/require('./_isArray');
+
+var _isString = /*#__PURE__*/require('./_isString');
+
+/**
+ * Tests whether or not an object is similar to an array.
+ *
+ * @private
+ * @category Type
+ * @category List
+ * @sig * -> Boolean
+ * @param {*} x The object to test.
+ * @return {Boolean} `true` if `x` has a numeric length property and extreme indices defined; `false` otherwise.
+ * @example
+ *
+ *      _isArrayLike([]); //=> true
+ *      _isArrayLike(true); //=> false
+ *      _isArrayLike({}); //=> false
+ *      _isArrayLike({length: 10}); //=> false
+ *      _isArrayLike({0: 'zero', 9: 'nine', length: 10}); //=> true
+ */
+
+
+var _isArrayLike = /*#__PURE__*/_curry1(function isArrayLike(x) {
+  if (_isArray(x)) {
+    return true;
+  }
+  if (!x) {
+    return false;
+  }
+  if (typeof x !== 'object') {
+    return false;
+  }
+  if (_isString(x)) {
+    return false;
+  }
+  if (x.nodeType === 1) {
+    return !!x.length;
+  }
+  if (x.length === 0) {
+    return true;
+  }
+  if (x.length > 0) {
+    return x.hasOwnProperty(0) && x.hasOwnProperty(x.length - 1);
+  }
+  return false;
+});
+module.exports = _isArrayLike;
+},{"./_curry1":"../node_modules/ramda/src/internal/_curry1.js","./_isArray":"../node_modules/ramda/src/internal/_isArray.js","./_isString":"../node_modules/ramda/src/internal/_isString.js"}],"../node_modules/ramda/src/internal/_xwrap.js":[function(require,module,exports) {
+var XWrap = /*#__PURE__*/function () {
+  function XWrap(fn) {
+    this.f = fn;
+  }
+  XWrap.prototype['@@transducer/init'] = function () {
+    throw new Error('init not implemented on XWrap');
+  };
+  XWrap.prototype['@@transducer/result'] = function (acc) {
+    return acc;
+  };
+  XWrap.prototype['@@transducer/step'] = function (acc, x) {
+    return this.f(acc, x);
+  };
+
+  return XWrap;
+}();
+
+function _xwrap(fn) {
+  return new XWrap(fn);
+}
+module.exports = _xwrap;
+},{}],"../node_modules/ramda/src/bind.js":[function(require,module,exports) {
+var _arity = /*#__PURE__*/require('./internal/_arity');
+
+var _curry2 = /*#__PURE__*/require('./internal/_curry2');
+
+/**
+ * Creates a function that is bound to a context.
+ * Note: `R.bind` does not provide the additional argument-binding capabilities of
+ * [Function.prototype.bind](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind).
+ *
+ * @func
+ * @memberOf R
+ * @since v0.6.0
+ * @category Function
+ * @category Object
+ * @sig (* -> *) -> {*} -> (* -> *)
+ * @param {Function} fn The function to bind to context
+ * @param {Object} thisObj The context to bind `fn` to
+ * @return {Function} A function that will execute in the context of `thisObj`.
+ * @see R.partial
+ * @example
+ *
+ *      const log = R.bind(console.log, console);
+ *      R.pipe(R.assoc('a', 2), R.tap(log), R.assoc('a', 3))({a: 1}); //=> {a: 3}
+ *      // logs {a: 2}
+ * @symb R.bind(f, o)(a, b) = f.call(o, a, b)
+ */
+
+
+var bind = /*#__PURE__*/_curry2(function bind(fn, thisObj) {
+  return _arity(fn.length, function () {
+    return fn.apply(thisObj, arguments);
+  });
+});
+module.exports = bind;
+},{"./internal/_arity":"../node_modules/ramda/src/internal/_arity.js","./internal/_curry2":"../node_modules/ramda/src/internal/_curry2.js"}],"../node_modules/ramda/src/internal/_reduce.js":[function(require,module,exports) {
+var _isArrayLike = /*#__PURE__*/require('./_isArrayLike');
+
+var _xwrap = /*#__PURE__*/require('./_xwrap');
+
+var bind = /*#__PURE__*/require('../bind');
+
+function _arrayReduce(xf, acc, list) {
+  var idx = 0;
+  var len = list.length;
+  while (idx < len) {
+    acc = xf['@@transducer/step'](acc, list[idx]);
+    if (acc && acc['@@transducer/reduced']) {
+      acc = acc['@@transducer/value'];
+      break;
+    }
+    idx += 1;
+  }
+  return xf['@@transducer/result'](acc);
+}
+
+function _iterableReduce(xf, acc, iter) {
+  var step = iter.next();
+  while (!step.done) {
+    acc = xf['@@transducer/step'](acc, step.value);
+    if (acc && acc['@@transducer/reduced']) {
+      acc = acc['@@transducer/value'];
+      break;
+    }
+    step = iter.next();
+  }
+  return xf['@@transducer/result'](acc);
+}
+
+function _methodReduce(xf, acc, obj, methodName) {
+  return xf['@@transducer/result'](obj[methodName](bind(xf['@@transducer/step'], xf), acc));
+}
+
+var symIterator = typeof Symbol !== 'undefined' ? Symbol.iterator : '@@iterator';
+
+function _reduce(fn, acc, list) {
+  if (typeof fn === 'function') {
+    fn = _xwrap(fn);
+  }
+  if (_isArrayLike(list)) {
+    return _arrayReduce(fn, acc, list);
+  }
+  if (typeof list['fantasy-land/reduce'] === 'function') {
+    return _methodReduce(fn, acc, list, 'fantasy-land/reduce');
+  }
+  if (list[symIterator] != null) {
+    return _iterableReduce(fn, acc, list[symIterator]());
+  }
+  if (typeof list.next === 'function') {
+    return _iterableReduce(fn, acc, list);
+  }
+  if (typeof list.reduce === 'function') {
+    return _methodReduce(fn, acc, list, 'reduce');
+  }
+
+  throw new TypeError('reduce: list must be array or iterable');
+}
+module.exports = _reduce;
+},{"./_isArrayLike":"../node_modules/ramda/src/internal/_isArrayLike.js","./_xwrap":"../node_modules/ramda/src/internal/_xwrap.js","../bind":"../node_modules/ramda/src/bind.js"}],"../node_modules/ramda/src/internal/_xfBase.js":[function(require,module,exports) {
+module.exports = {
+  init: function () {
+    return this.xf['@@transducer/init']();
+  },
+  result: function (result) {
+    return this.xf['@@transducer/result'](result);
+  }
+};
+},{}],"../node_modules/ramda/src/internal/_xmap.js":[function(require,module,exports) {
+var _curry2 = /*#__PURE__*/require('./_curry2');
+
+var _xfBase = /*#__PURE__*/require('./_xfBase');
+
+var XMap = /*#__PURE__*/function () {
+
+  function XMap(f, xf) {
+    this.xf = xf;
+    this.f = f;
+  }
+  XMap.prototype['@@transducer/init'] = _xfBase.init;
+  XMap.prototype['@@transducer/result'] = _xfBase.result;
+  XMap.prototype['@@transducer/step'] = function (result, input) {
+    return this.xf['@@transducer/step'](result, this.f(input));
+  };
+
+  return XMap;
+}();
+
+var _xmap = /*#__PURE__*/_curry2(function _xmap(f, xf) {
+  return new XMap(f, xf);
+});
+module.exports = _xmap;
+},{"./_curry2":"../node_modules/ramda/src/internal/_curry2.js","./_xfBase":"../node_modules/ramda/src/internal/_xfBase.js"}],"../node_modules/ramda/src/internal/_isArguments.js":[function(require,module,exports) {
+var _has = /*#__PURE__*/require('./_has');
+
+var toString = Object.prototype.toString;
+var _isArguments = /*#__PURE__*/function () {
+  return toString.call(arguments) === '[object Arguments]' ? function _isArguments(x) {
+    return toString.call(x) === '[object Arguments]';
+  } : function _isArguments(x) {
+    return _has('callee', x);
+  };
+}();
+
+module.exports = _isArguments;
+},{"./_has":"../node_modules/ramda/src/internal/_has.js"}],"../node_modules/ramda/src/keys.js":[function(require,module,exports) {
+var _curry1 = /*#__PURE__*/require('./internal/_curry1');
+
+var _has = /*#__PURE__*/require('./internal/_has');
+
+var _isArguments = /*#__PURE__*/require('./internal/_isArguments');
+
+// cover IE < 9 keys issues
+
+
+var hasEnumBug = ! /*#__PURE__*/{ toString: null }.propertyIsEnumerable('toString');
+var nonEnumerableProps = ['constructor', 'valueOf', 'isPrototypeOf', 'toString', 'propertyIsEnumerable', 'hasOwnProperty', 'toLocaleString'];
+// Safari bug
+var hasArgsEnumBug = /*#__PURE__*/function () {
+  'use strict';
+
+  return arguments.propertyIsEnumerable('length');
+}();
+
+var contains = function contains(list, item) {
+  var idx = 0;
+  while (idx < list.length) {
+    if (list[idx] === item) {
+      return true;
+    }
+    idx += 1;
+  }
+  return false;
+};
+
+/**
+ * Returns a list containing the names of all the enumerable own properties of
+ * the supplied object.
+ * Note that the order of the output array is not guaranteed to be consistent
+ * across different JS platforms.
+ *
+ * @func
+ * @memberOf R
+ * @since v0.1.0
+ * @category Object
+ * @sig {k: v} -> [k]
+ * @param {Object} obj The object to extract properties from
+ * @return {Array} An array of the object's own properties.
+ * @see R.keysIn, R.values
+ * @example
+ *
+ *      R.keys({a: 1, b: 2, c: 3}); //=> ['a', 'b', 'c']
+ */
+var keys = typeof Object.keys === 'function' && !hasArgsEnumBug ? /*#__PURE__*/_curry1(function keys(obj) {
+  return Object(obj) !== obj ? [] : Object.keys(obj);
+}) : /*#__PURE__*/_curry1(function keys(obj) {
+  if (Object(obj) !== obj) {
+    return [];
+  }
+  var prop, nIdx;
+  var ks = [];
+  var checkArgsLength = hasArgsEnumBug && _isArguments(obj);
+  for (prop in obj) {
+    if (_has(prop, obj) && (!checkArgsLength || prop !== 'length')) {
+      ks[ks.length] = prop;
+    }
+  }
+  if (hasEnumBug) {
+    nIdx = nonEnumerableProps.length - 1;
+    while (nIdx >= 0) {
+      prop = nonEnumerableProps[nIdx];
+      if (_has(prop, obj) && !contains(ks, prop)) {
+        ks[ks.length] = prop;
+      }
+      nIdx -= 1;
+    }
+  }
+  return ks;
+});
+module.exports = keys;
+},{"./internal/_curry1":"../node_modules/ramda/src/internal/_curry1.js","./internal/_has":"../node_modules/ramda/src/internal/_has.js","./internal/_isArguments":"../node_modules/ramda/src/internal/_isArguments.js"}],"../node_modules/ramda/src/map.js":[function(require,module,exports) {
+var _curry2 = /*#__PURE__*/require('./internal/_curry2');
+
+var _dispatchable = /*#__PURE__*/require('./internal/_dispatchable');
+
+var _map = /*#__PURE__*/require('./internal/_map');
+
+var _reduce = /*#__PURE__*/require('./internal/_reduce');
+
+var _xmap = /*#__PURE__*/require('./internal/_xmap');
+
+var curryN = /*#__PURE__*/require('./curryN');
+
+var keys = /*#__PURE__*/require('./keys');
+
+/**
+ * Takes a function and
+ * a [functor](https://github.com/fantasyland/fantasy-land#functor),
+ * applies the function to each of the functor's values, and returns
+ * a functor of the same shape.
+ *
+ * Ramda provides suitable `map` implementations for `Array` and `Object`,
+ * so this function may be applied to `[1, 2, 3]` or `{x: 1, y: 2, z: 3}`.
+ *
+ * Dispatches to the `map` method of the second argument, if present.
+ *
+ * Acts as a transducer if a transformer is given in list position.
+ *
+ * Also treats functions as functors and will compose them together.
+ *
+ * @func
+ * @memberOf R
+ * @since v0.1.0
+ * @category List
+ * @sig Functor f => (a -> b) -> f a -> f b
+ * @param {Function} fn The function to be called on every element of the input `list`.
+ * @param {Array} list The list to be iterated over.
+ * @return {Array} The new list.
+ * @see R.transduce, R.addIndex
+ * @example
+ *
+ *      const double = x => x * 2;
+ *
+ *      R.map(double, [1, 2, 3]); //=> [2, 4, 6]
+ *
+ *      R.map(double, {x: 1, y: 2, z: 3}); //=> {x: 2, y: 4, z: 6}
+ * @symb R.map(f, [a, b]) = [f(a), f(b)]
+ * @symb R.map(f, { x: a, y: b }) = { x: f(a), y: f(b) }
+ * @symb R.map(f, functor_o) = functor_o.map(f)
+ */
+
+
+var map = /*#__PURE__*/_curry2( /*#__PURE__*/_dispatchable(['fantasy-land/map', 'map'], _xmap, function map(fn, functor) {
+  switch (Object.prototype.toString.call(functor)) {
+    case '[object Function]':
+      return curryN(functor.length, function () {
+        return fn.call(this, functor.apply(this, arguments));
+      });
+    case '[object Object]':
+      return _reduce(function (acc, key) {
+        acc[key] = fn(functor[key]);
+        return acc;
+      }, {}, keys(functor));
+    default:
+      return _map(fn, functor);
+  }
+}));
+module.exports = map;
+},{"./internal/_curry2":"../node_modules/ramda/src/internal/_curry2.js","./internal/_dispatchable":"../node_modules/ramda/src/internal/_dispatchable.js","./internal/_map":"../node_modules/ramda/src/internal/_map.js","./internal/_reduce":"../node_modules/ramda/src/internal/_reduce.js","./internal/_xmap":"../node_modules/ramda/src/internal/_xmap.js","./curryN":"../node_modules/ramda/src/curryN.js","./keys":"../node_modules/ramda/src/keys.js"}],"../node_modules/ramda/src/path.js":[function(require,module,exports) {
+var _curry2 = /*#__PURE__*/require('./internal/_curry2');
+
+/**
+ * Retrieve the value at a given path.
+ *
+ * @func
+ * @memberOf R
+ * @since v0.2.0
+ * @category Object
+ * @typedefn Idx = String | Int
+ * @sig [Idx] -> {a} -> a | Undefined
+ * @param {Array} path The path to use.
+ * @param {Object} obj The object to retrieve the nested property from.
+ * @return {*} The data at `path`.
+ * @see R.prop
+ * @example
+ *
+ *      R.path(['a', 'b'], {a: {b: 2}}); //=> 2
+ *      R.path(['a', 'b'], {c: {b: 2}}); //=> undefined
+ */
+
+
+var path = /*#__PURE__*/_curry2(function path(paths, obj) {
+  var val = obj;
+  var idx = 0;
+  while (idx < paths.length) {
+    if (val == null) {
+      return;
+    }
+    val = val[paths[idx]];
+    idx += 1;
+  }
+  return val;
+});
+module.exports = path;
+},{"./internal/_curry2":"../node_modules/ramda/src/internal/_curry2.js"}],"../node_modules/ramda/src/prop.js":[function(require,module,exports) {
+var _curry2 = /*#__PURE__*/require('./internal/_curry2');
+
+var path = /*#__PURE__*/require('./path');
+
+/**
+ * Returns a function that when supplied an object returns the indicated
+ * property of that object, if it exists.
+ *
+ * @func
+ * @memberOf R
+ * @since v0.1.0
+ * @category Object
+ * @sig s -> {s: a} -> a | Undefined
+ * @param {String} p The property name
+ * @param {Object} obj The object to query
+ * @return {*} The value at `obj.p`.
+ * @see R.path
+ * @example
+ *
+ *      R.prop('x', {x: 100}); //=> 100
+ *      R.prop('x', {}); //=> undefined
+ *      R.compose(R.inc, R.prop('x'))({ x: 3 }) //=> 4
+ */
+
+var prop = /*#__PURE__*/_curry2(function prop(p, obj) {
+  return path([p], obj);
+});
+module.exports = prop;
+},{"./internal/_curry2":"../node_modules/ramda/src/internal/_curry2.js","./path":"../node_modules/ramda/src/path.js"}],"../node_modules/ramda/src/pluck.js":[function(require,module,exports) {
+var _curry2 = /*#__PURE__*/require('./internal/_curry2');
+
+var map = /*#__PURE__*/require('./map');
+
+var prop = /*#__PURE__*/require('./prop');
+
+/**
+ * Returns a new list by plucking the same named property off all objects in
+ * the list supplied.
+ *
+ * `pluck` will work on
+ * any [functor](https://github.com/fantasyland/fantasy-land#functor) in
+ * addition to arrays, as it is equivalent to `R.map(R.prop(k), f)`.
+ *
+ * @func
+ * @memberOf R
+ * @since v0.1.0
+ * @category List
+ * @sig Functor f => k -> f {k: v} -> f v
+ * @param {Number|String} key The key name to pluck off of each object.
+ * @param {Array} f The array or functor to consider.
+ * @return {Array} The list of values for the given key.
+ * @see R.props
+ * @example
+ *
+ *      var getAges = R.pluck('age');
+ *      getAges([{name: 'fred', age: 29}, {name: 'wilma', age: 27}]); //=> [29, 27]
+ *
+ *      R.pluck(0, [[1, 2], [3, 4]]);               //=> [1, 3]
+ *      R.pluck('val', {a: {val: 3}, b: {val: 5}}); //=> {a: 3, b: 5}
+ * @symb R.pluck('x', [{x: 1, y: 2}, {x: 3, y: 4}, {x: 5, y: 6}]) = [1, 3, 5]
+ * @symb R.pluck(0, [[1, 2], [3, 4], [5, 6]]) = [1, 3, 5]
+ */
+
+
+var pluck = /*#__PURE__*/_curry2(function pluck(p, list) {
+  return map(prop(p), list);
+});
+module.exports = pluck;
+},{"./internal/_curry2":"../node_modules/ramda/src/internal/_curry2.js","./map":"../node_modules/ramda/src/map.js","./prop":"../node_modules/ramda/src/prop.js"}],"../node_modules/ramda/src/internal/_curry3.js":[function(require,module,exports) {
+var _curry1 = /*#__PURE__*/require('./_curry1');
+
+var _curry2 = /*#__PURE__*/require('./_curry2');
+
+var _isPlaceholder = /*#__PURE__*/require('./_isPlaceholder');
+
+/**
+ * Optimized internal three-arity curry function.
+ *
+ * @private
+ * @category Function
+ * @param {Function} fn The function to curry.
+ * @return {Function} The curried function.
+ */
+
+
+function _curry3(fn) {
+  return function f3(a, b, c) {
+    switch (arguments.length) {
+      case 0:
+        return f3;
+      case 1:
+        return _isPlaceholder(a) ? f3 : _curry2(function (_b, _c) {
+          return fn(a, _b, _c);
+        });
+      case 2:
+        return _isPlaceholder(a) && _isPlaceholder(b) ? f3 : _isPlaceholder(a) ? _curry2(function (_a, _c) {
+          return fn(_a, b, _c);
+        }) : _isPlaceholder(b) ? _curry2(function (_b, _c) {
+          return fn(a, _b, _c);
+        }) : _curry1(function (_c) {
+          return fn(a, b, _c);
+        });
+      default:
+        return _isPlaceholder(a) && _isPlaceholder(b) && _isPlaceholder(c) ? f3 : _isPlaceholder(a) && _isPlaceholder(b) ? _curry2(function (_a, _b) {
+          return fn(_a, _b, c);
+        }) : _isPlaceholder(a) && _isPlaceholder(c) ? _curry2(function (_a, _c) {
+          return fn(_a, b, _c);
+        }) : _isPlaceholder(b) && _isPlaceholder(c) ? _curry2(function (_b, _c) {
+          return fn(a, _b, _c);
+        }) : _isPlaceholder(a) ? _curry1(function (_a) {
+          return fn(_a, b, c);
+        }) : _isPlaceholder(b) ? _curry1(function (_b) {
+          return fn(a, _b, c);
+        }) : _isPlaceholder(c) ? _curry1(function (_c) {
+          return fn(a, b, _c);
+        }) : fn(a, b, c);
+    }
+  };
+}
+module.exports = _curry3;
+},{"./_curry1":"../node_modules/ramda/src/internal/_curry1.js","./_curry2":"../node_modules/ramda/src/internal/_curry2.js","./_isPlaceholder":"../node_modules/ramda/src/internal/_isPlaceholder.js"}],"../node_modules/ramda/src/reduce.js":[function(require,module,exports) {
+var _curry3 = /*#__PURE__*/require('./internal/_curry3');
+
+var _reduce = /*#__PURE__*/require('./internal/_reduce');
+
+/**
+ * Returns a single item by iterating through the list, successively calling
+ * the iterator function and passing it an accumulator value and the current
+ * value from the array, and then passing the result to the next call.
+ *
+ * The iterator function receives two values: *(acc, value)*. It may use
+ * [`R.reduced`](#reduced) to shortcut the iteration.
+ *
+ * The arguments' order of [`reduceRight`](#reduceRight)'s iterator function
+ * is *(value, acc)*.
+ *
+ * Note: `R.reduce` does not skip deleted or unassigned indices (sparse
+ * arrays), unlike the native `Array.prototype.reduce` method. For more details
+ * on this behavior, see:
+ * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce#Description
+ *
+ * Dispatches to the `reduce` method of the third argument, if present. When
+ * doing so, it is up to the user to handle the [`R.reduced`](#reduced)
+ * shortcuting, as this is not implemented by `reduce`.
+ *
+ * @func
+ * @memberOf R
+ * @since v0.1.0
+ * @category List
+ * @sig ((a, b) -> a) -> a -> [b] -> a
+ * @param {Function} fn The iterator function. Receives two values, the accumulator and the
+ *        current element from the array.
+ * @param {*} acc The accumulator value.
+ * @param {Array} list The list to iterate over.
+ * @return {*} The final, accumulated value.
+ * @see R.reduced, R.addIndex, R.reduceRight
+ * @example
+ *
+ *      R.reduce(R.subtract, 0, [1, 2, 3, 4]) // => ((((0 - 1) - 2) - 3) - 4) = -10
+ *      //          -               -10
+ *      //         / \              / \
+ *      //        -   4           -6   4
+ *      //       / \              / \
+ *      //      -   3   ==>     -3   3
+ *      //     / \              / \
+ *      //    -   2           -1   2
+ *      //   / \              / \
+ *      //  0   1            0   1
+ *
+ * @symb R.reduce(f, a, [b, c, d]) = f(f(f(a, b), c), d)
+ */
+
+
+var reduce = /*#__PURE__*/_curry3(_reduce);
+module.exports = reduce;
+},{"./internal/_curry3":"../node_modules/ramda/src/internal/_curry3.js","./internal/_reduce":"../node_modules/ramda/src/internal/_reduce.js"}],"../node_modules/ramda/src/allPass.js":[function(require,module,exports) {
+var _curry1 = /*#__PURE__*/require('./internal/_curry1');
+
+var curryN = /*#__PURE__*/require('./curryN');
+
+var max = /*#__PURE__*/require('./max');
+
+var pluck = /*#__PURE__*/require('./pluck');
+
+var reduce = /*#__PURE__*/require('./reduce');
+
+/**
+ * Takes a list of predicates and returns a predicate that returns true for a
+ * given list of arguments if every one of the provided predicates is satisfied
+ * by those arguments.
+ *
+ * The function returned is a curried function whose arity matches that of the
+ * highest-arity predicate.
+ *
+ * @func
+ * @memberOf R
+ * @since v0.9.0
+ * @category Logic
+ * @sig [(*... -> Boolean)] -> (*... -> Boolean)
+ * @param {Array} predicates An array of predicates to check
+ * @return {Function} The combined predicate
+ * @see R.anyPass
+ * @example
+ *
+ *      const isQueen = R.propEq('rank', 'Q');
+ *      const isSpade = R.propEq('suit', '♠︎');
+ *      const isQueenOfSpades = R.allPass([isQueen, isSpade]);
+ *
+ *      isQueenOfSpades({rank: 'Q', suit: '♣︎'}); //=> false
+ *      isQueenOfSpades({rank: 'Q', suit: '♠︎'}); //=> true
+ */
+
+
+var allPass = /*#__PURE__*/_curry1(function allPass(preds) {
+  return curryN(reduce(max, 0, pluck('length', preds)), function () {
+    var idx = 0;
+    var len = preds.length;
+    while (idx < len) {
+      if (!preds[idx].apply(this, arguments)) {
+        return false;
+      }
+      idx += 1;
+    }
+    return true;
+  });
+});
+module.exports = allPass;
+},{"./internal/_curry1":"../node_modules/ramda/src/internal/_curry1.js","./curryN":"../node_modules/ramda/src/curryN.js","./max":"../node_modules/ramda/src/max.js","./pluck":"../node_modules/ramda/src/pluck.js","./reduce":"../node_modules/ramda/src/reduce.js"}],"../node_modules/uuid/lib/rng-browser.js":[function(require,module,exports) {
 // Unique ID creation requires a high quality random # generator.  In the
 // browser this is a little complicated due to unknown quality of Math.random()
 // and inconsistent support for the `crypto` API.  We do the best we can via
@@ -26111,13 +27145,11 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 var _default = (0, _react.createContext)({
   handle: function handle(_ref) {
-    var id = _ref.id,
-        i = _ref.i,
-        j = _ref.j;
+    var col = _ref.col,
+        row = _ref.row;
     return {
-      id: id,
-      i: i,
-      j: j
+      col: col,
+      row: row
     };
   }
 });
@@ -26257,11 +27289,13 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var Td = function Td(_ref) {
   var children = _ref.children,
       style = _ref.style,
-      onClick = _ref.onClick;
+      col = _ref.col,
+      row = _ref.row;
   return _react.default.createElement("div", {
     style: style || {},
     className: "table__td",
-    onClick: onClick
+    "data-col": col,
+    "data-row": row
   }, children);
 };
 
@@ -26314,6 +27348,10 @@ exports.default = void 0;
 
 var _react = _interopRequireWildcard(require("react"));
 
+var _has = _interopRequireDefault(require("ramda/src/has"));
+
+var _allPass = _interopRequireDefault(require("ramda/src/allPass"));
+
 var _v = _interopRequireDefault(require("uuid/v1"));
 
 var _constants = require("/constants");
@@ -26330,7 +27368,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
 
-// $FlowIgnore
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 var on = '#2c3e50';
 var off = '#ffffff';
 
@@ -26342,12 +27383,23 @@ function Grid(_ref) {
       handle = _useContext.handle;
 
   var gridSize = "".concat(size ? size : _constants.SIZE, "px");
+
+  var handleClick = function handleClick(evt) {
+    var target = evt.target;
+    var hasCoords = [(0, _has.default)('col'), (0, _has.default)('row')];
+
+    if (target instanceof HTMLDivElement && (0, _allPass.default)(hasCoords)(target.dataset)) {
+      handle(_objectSpread({}, target.dataset));
+    }
+  };
+
   return _react.default.createElement("div", {
     style: {
       height: gridSize,
       width: gridSize
     },
-    className: "grid"
+    className: "grid",
+    onClick: handleClick
   }, _react.default.createElement(_Table.Table, {
     isFull: true
   }, grid.map(function (row, i) {
@@ -26360,13 +27412,8 @@ function Grid(_ref) {
         style: {
           background: col ? on : off
         },
-        onClick: function onClick() {
-          return handle({
-            id: id,
-            i: i,
-            j: j
-          });
-        }
+        col: i,
+        row: j
       });
     }));
   })));
@@ -26375,7 +27422,7 @@ function Grid(_ref) {
 ;
 var _default = Grid;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","uuid/v1":"../node_modules/uuid/v1.js","/constants":"constants/index.js","/utils/makeGrid":"utils/makeGrid.js","/AppContext":"AppContext.js","/components/core/Table":"components/core/Table/index.js","./Grid.scss":"components/shared/Grid/Grid.scss"}],"components/shared/Grid/index.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","ramda/src/has":"../node_modules/ramda/src/has.js","ramda/src/allPass":"../node_modules/ramda/src/allPass.js","uuid/v1":"../node_modules/uuid/v1.js","/constants":"constants/index.js","/utils/makeGrid":"utils/makeGrid.js","/AppContext":"AppContext.js","/components/core/Table":"components/core/Table/index.js","./Grid.scss":"components/shared/Grid/Grid.scss"}],"components/shared/Grid/index.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26655,9 +27702,8 @@ var intervalId;
 
 function App() {
   var _useState = (0, _react.useState)({
-    id: '',
-    i: 0,
-    j: 0
+    col: 0,
+    row: 0
   }),
       _useState2 = _slicedToArray(_useState, 2),
       selected = _useState2[0],
@@ -26682,11 +27728,11 @@ function App() {
 
 
   var handle = function handle(current) {
-    var i = current.i,
-        j = current.j;
+    var col = current.col,
+        row = current.row;
     var clonedGrid = (0, _cloneGrid.default)(grid); // toggle cell's value and coerce back to number using "+"
 
-    clonedGrid[i][j] = +!clonedGrid[i][j]; // update grid
+    clonedGrid[col][row] = +!clonedGrid[col][row]; // update grid
 
     setGrid(clonedGrid);
     setSeleted(current);

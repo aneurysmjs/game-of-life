@@ -1,6 +1,10 @@
 // @flow strict
 import React, { useContext } from 'react';
 // $FlowIgnore
+import has from 'ramda/src/has';
+// $FlowIgnore
+import allPass from 'ramda/src/allPass';
+// $FlowIgnore
 import uuidv1 from 'uuid/v1';
 
 import { SIZE } from '/constants';
@@ -23,7 +27,16 @@ type PropsType = {
 
 function Grid({ grid, size }: PropsType) {
   const { handle } = useContext(AppContext);
-  const gridSize = `${size ? size : SIZE}px`
+  const gridSize = `${size ? size : SIZE}px`;
+
+  const handleClick = (evt: SyntheticMouseEvent<HTMLDivElement>): void => {    
+    const { target } = evt;
+    const hasCoords = [has('col'), has('row')];    
+    if (target instanceof HTMLDivElement && allPass(hasCoords)(target.dataset)) {
+      handle({ ...target.dataset });
+    }
+  };
+
   return (
     <div
       style={{
@@ -31,6 +44,7 @@ function Grid({ grid, size }: PropsType) {
         width: gridSize,
       }}
       className="grid"
+      onClick={handleClick}
     >
       <Table isFull>
         {grid.map((row, i) => (
@@ -43,7 +57,8 @@ function Grid({ grid, size }: PropsType) {
                   style={{
                     background: col ? on : off,
                   }}
-                  onClick={() => handle({ id, i, j })}
+                  col={i}
+                  row={j}
                 />
               );
             })}
