@@ -78,7 +78,6 @@ function App() {
     setGrid(initialGrid);
     const { rows, cols } = divideGrid(size);
     setGrid(makeGrid(rows, cols, () => 0));
-    // setSize(SIZE);
     setGeneration(0);
   };
 
@@ -94,6 +93,7 @@ function App() {
   };
 
   const handleSize = (option): void => {
+    stop();
     const { rows, cols } = divideGrid(option.value);    
     setSize(option.value);
     setGrid(makeGrid(rows, cols, () => 0));

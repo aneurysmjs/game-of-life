@@ -27781,8 +27781,7 @@ function App() {
 
     setGrid((0, _makeGrid.default)(rows, cols, function () {
       return 0;
-    })); // setSize(SIZE);
-
+    }));
     setGeneration(0);
   };
 
@@ -27798,6 +27797,8 @@ function App() {
   };
 
   var handleSize = function handleSize(option) {
+    stop();
+
     var _divideGrid4 = (0, _divideGrid5.default)(option.value),
         rows = _divideGrid4.rows,
         cols = _divideGrid4.cols;
