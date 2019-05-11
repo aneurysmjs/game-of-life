@@ -1,3 +1,4 @@
+// @flow strict
 export default function makeMatrix(
   m: number,
   n: number,

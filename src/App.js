@@ -111,10 +111,12 @@ function App() {
           <div className="text-center my-3">
             <strong>Generations:</strong> { generation }
           </div>
-          <Grid
-            grid={grid}
-            size={size}
-          />
+          <div className="d-flex">
+            <Grid
+              grid={grid}
+              size={size}
+            />
+          </div>
         </AppContext.Provider>
       </div>
       <div className="mb-5" />

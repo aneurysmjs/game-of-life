@@ -27824,10 +27824,12 @@ function App() {
     onSize: handleSize
   }), _react.default.createElement("div", {
     className: "text-center my-3"
-  }, _react.default.createElement("strong", null, "Generations:"), " ", generation), _react.default.createElement(_Grid.Grid, {
+  }, _react.default.createElement("strong", null, "Generations:"), " ", generation), _react.default.createElement("div", {
+    className: "d-flex"
+  }, _react.default.createElement(_Grid.Grid, {
     grid: grid,
     size: size
-  }))), _react.default.createElement("div", {
+  })))), _react.default.createElement("div", {
     className: "mb-5"
   }));
 }
