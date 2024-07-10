@@ -7,9 +7,8 @@
   "license": "MIT",
   "scripts": {
     "commit": "git-cz",
-    "start": "parcel src/index.html --open",
-    "build": "parcel build src/index.html",
-    "flow-typed": "node_modules/.bin/flow-typed"
+    "start": "vite",
+    "build": "vite build"
   },
   "config": {
     "commitizen": {
@@ -17,25 +16,26 @@
     }
   },
   "devDependencies": {
-    "@babel/core": "7.5.5",
-    "@babel/plugin-proposal-class-properties": "7.5.5",
-    "@babel/plugin-syntax-async-generators": "7.2.0",
-    "@babel/preset-env": "7.5.5",
-    "@babel/preset-flow": "7.0.0",
-    "@babel/preset-react": "7.0.0",
-    "commitizen": "4.0.3",
-    "cz-conventional-changelog": "3.0.2",
-    "flow-bin": "0.104.0",
-    "flow-typed": "2.6.1",
-    "node-sass": "4.12.0",
-    "parcel-bundler": "1.12.3",
-    "sass": "1.22.9"
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@types/react-router-dom": "^5.3.3",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.19",
+    "commitizen": "4.3.0",
+    "cz-conventional-changelog": "3.3.0",
+    "postcss": "^8.4.39",
+    "postcss-import": "^16.1.0",
+    "prettier": "^3.3.2",
+    "tailwindcss": "^3.4.4",
+    "typescript": "^5.5.3",
+    "unocss": "^0.61.3",
+    "vite": "^5.3.3"
   },
   "dependencies": {
     "bootstrap": "4.3.1",
     "node-uuid": "1.4.8",
-    "ramda": "0.26.1",
-    "react": "16.8.6",
-    "react-dom": "16.8.6"
+    "ramda": "0.30.1",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
   }
 }
