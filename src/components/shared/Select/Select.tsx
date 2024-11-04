@@ -1,21 +1,22 @@
+import { useState, useEffect, FC } from 'react';
 
-import  { useState, useEffect } from 'react';
-type SelectedType = {
-  id: string,
-  text: string,
-  value: any
+export type SelectedType = {
+  id: string;
+  text: string;
+  value: any;
 };
+
 type PropsType = {
-  options: Array<SelectedType>,
-  onSelect: (SelectedType) => void,
-  buttonText: string,
+  options: Array<SelectedType>;
+  onSelect: (selected: SelectedType) => void;
+  buttonText: string;
 };
 
-function Select({ options, onSelect, buttonText = 'Select' }: PropsType) {
+const Select: FC<PropsType> = ({ options, onSelect, buttonText = 'Select' }) => {
   const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState<SelectedType | undefined>(undefined);
 
-  const handleClick = (option): void => {
+  const handleClick = (option: SelectedType): void => {
     onSelect(option);
     setSelected(option);
     toggle();
@@ -26,32 +27,30 @@ function Select({ options, onSelect, buttonText = 'Select' }: PropsType) {
   };
 
   const handle = (evt: Event): void => {
-    let { target } = evt; // clicked element    
-    if (open && !isItem(target)) {
+    let { target } = evt; // clicked element
+    if (open && target && !isItem(target)) {
       setOpen(false);
     }
   };
 
   const isItem = (el: EventTarget): boolean | void => {
     if (el instanceof HTMLButtonElement) {
-      el.classList.contains('dropdown-item')
+      el.classList.contains('dropdown-item');
     }
   };
 
   useEffect(() => {
-    
     document.addEventListener('click', handle);
 
     return () => {
-      
       document.removeEventListener('click', handle);
-    }
+    };
   });
-  
+
   return (
-    <div className="dropdown">
+    <div className="select">
       <button
-        className="btn btn-secondary dropdown-toggle"
+        className="rounded-md bg-white/10 px-3.5 py-2.5 text-sm font-semibold  text-theme shadow-sm hover:bg-white/20"
         type="button"
         aria-haspopup="true"
         aria-expanded="false"
@@ -59,11 +58,11 @@ function Select({ options, onSelect, buttonText = 'Select' }: PropsType) {
       >
         {selected ? selected.text : buttonText}
       </button>
-      <div className={`dropdown-menu ${open ? 'show' : ''}`}>
-        {options.map(option => (
+      <div className={`${open ? 'block' : 'hidden'}`}>
+        {options.map((option) => (
           <button
             type="button"
-            className="dropdown-item"
+            className="rounded-md bg-white/10 px-3.5 py-2.5 text-sm font-semibold  text-theme shadow-sm hover:bg-white/20"
             key={option.id}
             onClick={() => handleClick(option)}
           >
@@ -72,7 +71,7 @@ function Select({ options, onSelect, buttonText = 'Select' }: PropsType) {
         ))}
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default Select;
